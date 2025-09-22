@@ -1,0 +1,81 @@
+/*
+Template Name: Velzon - Admin & Dashboard Template
+Author: Themesbrand
+Website: https://themesbrand.com/
+Contact: support@themesbrand.com
+File: Custom Css File
+*/
+body{
+    background: white;
+}
+.full-height{
+    height: 100vh !important;
+}
+.bg-grey{
+    background-color: #919da9 ;
+}
+.button-css{
+    border-radius: 30px;
+    padding: 14px 14px;
+    background-color: #EA6307;
+    border: none;
+}
+.button-css:hover{
+    background-color: #EA6307;
+}
+.w-80{
+    width: 80%;
+}
+.input-css{
+    padding: 14px 14px;
+    background: #EEEEEE;
+}
+
+#page-topbar{
+    .layout-width{
+        .navbar-header{
+            background: #919da9;
+        }
+    }
+}
+.day-column {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.table-card{
+    .table-color{
+        color: white;
+        background-color: #EA6307;
+    }
+}
+.table > thead{
+    color : white;
+    background-color: #EA6307;
+}
+.nav-success .nav-link.active{
+    background-color: #EA6307;
+}
+.card-css{
+    box-shadow: 0px 30px 20px rgba(56, 65, 74, 0.1);
+    border-radius: 30px;
+    border: 1px solid #d5d5d5;
+}
+.subscription-card {
+    max-width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .subscription-card:hover{
+    color: white;
+    background-color:  #EA6307;
+  }
+  .gap-css{
+    gap: 12px;padding:0px 14px
+  }
+  .w-20{
+    width: 20%;
+  }
+  .navbar-menu .navbar-nav .nav-link.active{
+    color: #EA6307 !important;
+  }
