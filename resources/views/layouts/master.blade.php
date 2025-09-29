@@ -19,7 +19,8 @@
 
     <!--Swiper slider css-->
     <link href="{{ asset('assets/libs/swiper/swiper-bundle.min.css') }}" rel="stylesheet" type="text/css" />
-
+    <!-- Sweet Alert css-->
+    <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- Layout config Js -->
     <script src="{{ asset('assets/js/layout.js') }}"></script>
     <!-- Bootstrap Css -->
@@ -30,6 +31,10 @@
     <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
     <link href="{{ asset('assets/css/custom.min.css') }}" rel="stylesheet" type="text/css" />
+    <!--datatable css-->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
 </head>
 
 <body>
@@ -37,11 +42,11 @@
     <!-- Begin page -->
     <div id="layout-wrapper">
 
-      {{-- Topbar --}}
+        {{-- Topbar --}}
         @include('partials.topbar')
 
         <!-- removeNotificationModal -->
-        <div id="removeNotificationModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
+        {{-- <div id="removeNotificationModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -67,7 +72,8 @@
 
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
+        </div> --}}
+        <!-- /.modal -->
         <!-- ========== App Menu ========== -->
         {{-- Sidebar --}}
         @include('partials.sidebar')
@@ -81,6 +87,19 @@
         <div class="main-content">
 
             <div class="page-content">
+
+                {{-- 🔹 Flash Messages Here --}}
+                @if (session('success'))
+                    <div class="alert alert-success material-shadow" role="alert">
+                        <strong>Yey! Everything worked! </strong> {{ session('success') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger material-shadow" role="alert">
+                        <strong>Oops! Something went wrong. </strong> {{ session('error') }}
+                    </div>
+                @endif
                 @yield('content')
                 <!-- container-fluid -->
             </div>
@@ -135,8 +154,8 @@
                     <div class="row gy-3">
                         <div class="col-4">
                             <div class="form-check card-radio">
-                                <input id="customizer-layout01" name="data-layout" type="radio"
-                                    value="vertical" class="form-check-input">
+                                <input id="customizer-layout01" name="data-layout" type="radio" value="vertical"
+                                    class="form-check-input">
                                 <label class="form-check-label p-0 avatar-md w-100 material-shadow"
                                     for="customizer-layout01">
                                     <span class="d-flex gap-1 h-100">
@@ -161,8 +180,8 @@
                         </div>
                         <div class="col-4">
                             <div class="form-check card-radio">
-                                <input id="customizer-layout02" name="data-layout" type="radio"
-                                    value="horizontal" class="form-check-input">
+                                <input id="customizer-layout02" name="data-layout" type="radio" value="horizontal"
+                                    class="form-check-input">
                                 <label class="form-check-label p-0 avatar-md w-100 material-shadow"
                                     for="customizer-layout02">
                                     <span class="d-flex h-100 flex-column gap-1">
@@ -180,8 +199,8 @@
                         </div>
                         <div class="col-4">
                             <div class="form-check card-radio">
-                                <input id="customizer-layout03" name="data-layout" type="radio"
-                                    value="twocolumn" class="form-check-input">
+                                <input id="customizer-layout03" name="data-layout" type="radio" value="twocolumn"
+                                    class="form-check-input">
                                 <label class="form-check-label p-0 avatar-md w-100 material-shadow"
                                     for="customizer-layout03">
                                     <span class="d-flex gap-1 h-100">
@@ -216,8 +235,8 @@
 
                         <div class="col-4">
                             <div class="form-check card-radio">
-                                <input id="customizer-layout04" name="data-layout" type="radio"
-                                    value="semibox" class="form-check-input">
+                                <input id="customizer-layout04" name="data-layout" type="radio" value="semibox"
+                                    class="form-check-input">
                                 <label class="form-check-label p-0 avatar-md w-100 material-shadow"
                                     for="customizer-layout04">
                                     <span class="d-flex gap-1 h-100">
@@ -257,8 +276,7 @@
                                 <input id="customizer-theme01" name="data-theme" type="radio" value="default"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme01">
-                                    <img src="../../assets/images/demo/default.png" alt=""
-                                        class="img-fluid">
+                                    <img src="../../assets/images/demo/default.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Default</h5>
@@ -275,8 +293,8 @@
                         </div>
                         <div class="col-6">
                             <div class="form-check card-radio">
-                                <input id="customizer-theme03" name="data-theme" type="radio"
-                                    value="corporate" class="form-check-input">
+                                <input id="customizer-theme03" name="data-theme" type="radio" value="corporate"
+                                    class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme03">
                                     <img src="../../assets/images/demo/corporate.png" alt=""
                                         class="img-fluid">
@@ -289,8 +307,7 @@
                                 <input id="customizer-theme04" name="data-theme" type="radio" value="galaxy"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme04">
-                                    <img src="../../assets/images/demo/galaxy.png" alt=""
-                                        class="img-fluid">
+                                    <img src="../../assets/images/demo/galaxy.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Galaxy</h5>
@@ -322,8 +339,7 @@
                                 <input id="customizer-theme07" name="data-theme" type="radio" value="minimal"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme07">
-                                    <img src="../../assets/images/demo/minimal.png" alt=""
-                                        class="img-fluid">
+                                    <img src="../../assets/images/demo/minimal.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Minimal</h5>
@@ -333,8 +349,7 @@
                                 <input id="customizer-theme08" name="data-theme" type="radio" value="modern"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme08">
-                                    <img src="../../assets/images/demo/modern.png" alt=""
-                                        class="img-fluid">
+                                    <img src="../../assets/images/demo/modern.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Modern</h5>
@@ -342,8 +357,8 @@
                         <!-- end col -->
                         <div class="col-6">
                             <div class="form-check card-radio">
-                                <input id="customizer-theme09" name="data-theme" type="radio"
-                                    value="interactive" class="form-check-input">
+                                <input id="customizer-theme09" name="data-theme" type="radio" value="interactive"
+                                    class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme09">
                                     <img src="../../assets/images/demo/interactive.png" alt=""
                                         class="img-fluid">
@@ -357,8 +372,7 @@
                                 <input id="customizer-theme10" name="data-theme" type="radio" value="classic"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme10">
-                                    <img src="../../assets/images/demo/classic.png" alt=""
-                                        class="img-fluid">
+                                    <img src="../../assets/images/demo/classic.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Classic</h5>
@@ -369,8 +383,7 @@
                                 <input id="customizer-theme11" name="data-theme" type="radio" value="vintage"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme11">
-                                    <img src="../../assets/images/demo/vintage.png" alt=""
-                                        class="img-fluid">
+                                    <img src="../../assets/images/demo/vintage.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Vintage</h5>
@@ -567,8 +580,7 @@
 
                             <input type="radio" class="btn-check" name="data-layout-position"
                                 id="layout-position-scrollable" value="scrollable">
-                            <label class="btn btn-light w-sm ms-0"
-                                for="layout-position-scrollable">Scrollable</label>
+                            <label class="btn btn-light w-sm ms-0" for="layout-position-scrollable">Scrollable</label>
                         </div>
                     </div>
                     <h6 class="mt-4 mb-0 fw-semibold text-uppercase">Topbar Color</h6>
@@ -1042,10 +1054,8 @@
                                             </span>
                                         </span>
                                         <!-- <div id="preloader"> -->
-                                        <div id="status"
-                                            class="d-flex align-items-center justify-content-center">
-                                            <div class="spinner-border text-primary avatar-xxs m-auto"
-                                                role="status">
+                                        <div id="status" class="d-flex align-items-center justify-content-center">
+                                            <div class="spinner-border text-primary avatar-xxs m-auto" role="status">
                                                 <span class="visually-hidden">Loading...</span>
                                             </div>
                                         </div>
@@ -1168,8 +1178,8 @@
                     <button type="button" class="btn btn-light w-100" id="reset-layout">Reset</button>
                 </div>
                 <div class="col-6">
-                    <a href="https://1.envato.market/velzon-admin" target="_blank"
-                        class="btn btn-primary w-100">Buy Now</a>
+                    <a href="https://1.envato.market/velzon-admin" target="_blank" class="btn btn-primary w-100">Buy
+                        Now</a>
                 </div>
             </div>
         </div>
@@ -1183,6 +1193,20 @@
     <script src="{{ asset('assets/js/pages/plugins/lord-icon-2.1.0.js') }}"></script>
     <script src="{{ asset('assets/js/plugins.js') }}"></script>
 
+    <!--datatable js-->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"></script>
+
+    <script src="assets/js/pages/datatables.init.js"></script>
+    <!--End datatable js-->
+    <!-- Sweet Alerts js -->
+    <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+
+    <!-- Sweet alert init js-->
+    <script src="{{ asset('assets/js/pages/sweetalerts.init.js') }}"></script>
     <!-- apexcharts -->
     <script src="{{ asset('assets/libs/apexcharts/apexcharts.min.js') }}"></script>
 
@@ -1200,6 +1224,16 @@
     <script src="{{ asset('assets/js/app.js') }}"></script>
 
     @stack('scripts')
+
+    <script>
+        // Auto close after 3 sec
+        setTimeout(function() {
+            let alert = document.querySelector('.alert');
+            if (alert) {
+                alert.style.display = 'none';
+            }
+        }, 3000);
+    </script>
 </body>
 
 
