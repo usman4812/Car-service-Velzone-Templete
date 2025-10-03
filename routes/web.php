@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AjaxController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BlogController;
@@ -56,4 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('services',ServiceController::class);
     Route::resource('workers',WorkerController::class);
     Route::resource('works',WorksController::class);
+
+    Route::get('/get-subcategories/{category_id}', [AjaxController::class, 'getSubCategories'])->name('get.subcategories');
+
 });

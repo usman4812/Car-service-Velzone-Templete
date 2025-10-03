@@ -166,7 +166,7 @@
                  </li>
 
                  <li class="nav-item">
-                     <a class="nav-link menu-link" href="">
+                     <a class="nav-link menu-link" href="{{ route('products.index')}}">
                          <i class="ri-honour-line"></i> <span data-key="t-widgets">Products</span>
                      </a>
                  </li>

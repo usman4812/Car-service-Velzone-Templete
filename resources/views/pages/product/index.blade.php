@@ -1,15 +1,14 @@
 @extends('layouts.master')
-@section('title', 'Sales Persons')
+@section('title', 'Products')
 @section('content')
     <!-- end page title -->
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header d-flex align-items-center">
-                    <h5 class="card-title mb-0 flex-grow-1">Sales Person</h5>
+                    <h5 class="card-title mb-0 flex-grow-1">Products</h5>
                     <div>
-                        <a id="addRow" href="{{ route('sales-persons.create') }}" class="btn btn-primary">Add Sales
-                            Person</a>
+                        <a id="addRow" href="{{ route('products.create') }}" class="btn btn-primary">Add Product</a>
                     </div>
                 </div>
 
@@ -19,24 +18,35 @@
                         <thead>
                             <tr>
                                 <th data-ordering="false">SR No.</th>
-                                <th data-ordering="false">Full Name</th>
-                                <th data-ordering="false">Email</th>
-                                <th data-ordering="false">Phone</th>
-                                <th data-ordering="false">Joining Date</th>
+                                <th data-ordering="false">Image</th>
+                                <th data-ordering="false">Name</th>
+                                <th data-ordering="false">Category</th>
+                                <th data-ordering="false">Sub Category</th>
+                                <th>Code</th>
+                                <th>Price</th>
+                                <th>Warranty</th>
+                                <th>Date</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($salesPerson as $key => $person)
+                            @foreach ($products as $key => $product)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
-                                    <td>{{ $person->name }}</td>
-                                    <td>{{ $person->email }}</td>
-                                    <td>{{ $person->phone }}</td>
-                                    <td>{{ $person->joining_date }}</td>
                                     <td>
-                                        @if ($person->status == 'active')
+                                         <img src="{{ asset('storage/product/' . ($product->image ?? 'avatar.png')) }}"
+                                            width="90" height="60" class="img-thumbnail">
+                                    </td>
+                                    <td>{{ $product->name }}</td>
+                                    <td>{{ $product->category->name }}</td>
+                                    <td>{{ $product->subCategory->name }}</td>
+                                    <td>{{ $product->code }}</td>
+                                    <td>{{ $product->price }}</td>
+                                    <td>{{ $product->warranty }}</td>
+                                    <td>{{ $product->date }}</td>
+                                    <td>
+                                        @if ($product->status == 'active')
                                             <span class="badge bg-success">Active</span>
                                         @else
                                             <span class="badge bg-danger">Inactive</span>
@@ -50,13 +60,13 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
-                                                    <a href="{{ route('sales-persons.edit', $person->id) }}"
+                                                    <a href="{{ route('products.edit', $product->id) }}"
                                                         class="dropdown-item edit-item-btn">
                                                         <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <form action="{{ route('sales-persons.destroy', $person->id) }}"
+                                                    <form action="{{ route('products.destroy', $product->id) }}"
                                                         method="POST" style="display:inline;">
                                                         @csrf
                                                         @method('DELETE')
