@@ -2,20 +2,63 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Yajra\DataTables\Facades\DataTables;
 
 class CustomerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+
+    public function index(Request $request)
     {
-        $customers = Customer:: all();
-        return view('pages.customer.index',compact('customers'));
+        if ($request->ajax()) {
+            $data = Customer::select(['id', 'name', 'email', 'phone', 'car_model', 'car_plat_no', 'date', 'status']);
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('status', function ($row) {
+                    return $row->status == 'active'
+                        ? '<span class="badge bg-success">Active</span>'
+                        : '<span class="badge bg-danger">Inactive</span>';
+                })
+                ->addColumn('action', function ($row) {
+                    $editUrl = route('customers.edit', $row->id);
+                    $deleteUrl = route('customers.destroy', $row->id);
+
+                    return '
+                    <div class="dropdown d-inline-block">
+                        <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="ri-more-fill align-middle"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
+                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                                </a>
+                            </li>
+                            <li>
+                                <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                    ' . csrf_field() . method_field('DELETE') . '
+                                    <button type="button" class="dropdown-item remove-item-btn show-confirm">
+                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                ';
+                })
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+        }
+
+        return view('pages.customer.index');
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -62,13 +105,13 @@ class CustomerController extends Controller
      */
     public function update(Request $request, string $id)
     {
-       $request->validate([
+        $request->validate([
             'name'         => 'required|string|max:255',
             'phone'        => 'required|string',
         ]);
         $customer = Customer::findOrFail($id);
         $req_data = $request->all();
-       if ($customer) {
+        if ($customer) {
             $customer->update($req_data);
             return redirect()->route('customers.index')
                 ->with('success', 'Customer Updated Successfully');
@@ -85,7 +128,7 @@ class CustomerController extends Controller
         $customer = Customer::findOrFail($id);
         if ($customer) {
             $customer->delete();
-        return redirect()->route('customers.index')->with('success', 'Customer Delete Successfully!');
+            return redirect()->route('customers.index')->with('success', 'Customer Delete Successfully!');
         } else {
             return redirect()->route('customers.index')->with('error', 'Record not found');
         }

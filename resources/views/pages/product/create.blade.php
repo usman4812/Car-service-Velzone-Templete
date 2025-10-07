@@ -57,11 +57,10 @@
                                             placeholder="Enter Warranty">
                                     </div>
                                 </div>
-                                 <div class="col-md-6">
+                                <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="code" class="form-label">Code</label>
-                                        <input type="text" name="code" class="form-control"
-                                            placeholder="Enter Code">
+                                        <input type="text" name="code" class="form-control" placeholder="Enter Code">
                                     </div>
                                 </div>
                                 <!--end col-->
@@ -98,8 +97,13 @@
                                 </div>
                                 <!--end col-->
                                 <div class="col-lg-12">
-                                    <div class="text-end">
-                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a href="{{ route('products.index') }}" class="btn btn-danger waves-effect">
+                                            <i class="ri-arrow-left-line align-middle me-1"></i> Back
+                                        </a>
+                                        <div class="text-end">
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
                                     </div>
                                 </div>
                                 <!--end col-->

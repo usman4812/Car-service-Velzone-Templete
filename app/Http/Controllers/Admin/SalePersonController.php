@@ -5,17 +5,59 @@ namespace App\Http\Controllers\Admin;
 use App\Models\SalesPerson;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Yajra\DataTables\Facades\DataTables;
 
 class SalePersonController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $salesPerson = SalesPerson::all();
-        return view('pages.sale-person.index', compact('salesPerson'));
+        if ($request->ajax()) {
+            $data = SalesPerson::select(['id', 'name', 'email', 'phone', 'joining_date', 'status']);
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('status', function ($row) {
+                    return $row->status == 'active'
+                        ? '<span class="badge bg-success">Active</span>'
+                        : '<span class="badge bg-danger">Inactive</span>';
+                })
+                ->addColumn('action', function ($row) {
+                    $editUrl = route('sales-persons.edit', $row->id);
+                    $deleteUrl = route('sales-persons.destroy', $row->id);
+
+                    return '
+                    <div class="dropdown d-inline-block">
+                        <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="ri-more-fill align-middle"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
+                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                                </a>
+                            </li>
+                            <li>
+                                <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                    ' . csrf_field() . method_field('DELETE') . '
+                                    <button type="button" class="dropdown-item remove-item-btn show-confirm">
+                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                ';
+                })
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+        }
+
+        return view('pages.sale-person.index');
     }
+
 
     /**
      * Show the form for creating a new resource.

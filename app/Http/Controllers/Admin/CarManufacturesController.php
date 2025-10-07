@@ -5,18 +5,61 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Models\CarManufactures;
 use App\Http\Controllers\Controller;
+use Yajra\DataTables\Facades\DataTables;
 
 class CarManufacturesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $carManufactures = CarManufactures::all();
-        return view('pages.car-manufacture.index', compact('carManufactures'));
-    }
+        if ($request->ajax()) {
+            $data = CarManufactures::select(['id', 'image', 'name', 'date', 'status']);
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('image', function ($row) {
+                    $imagePath = asset('storage/carManufacture/' . ($row->image ?? 'avatar.png'));
+                    return '<img src="' . $imagePath . '" alt="Car" width="90" height="60" class="img-thumbnail" />';
+                })
+                ->addColumn('status', function ($row) {
+                    return $row->status === 'active'
+                        ? '<span class="badge bg-success">Active</span>'
+                        : '<span class="badge bg-danger">Inactive</span>';
+                })
+                ->addColumn('action', function ($row) {
+                    $editUrl = route('car-manufactures.edit', $row->id);
+                    $deleteUrl = route('car-manufactures.destroy', $row->id);
 
+                    return '
+                    <div class="dropdown d-inline-block">
+                        <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="ri-more-fill align-middle"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
+                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                                </a>
+                            </li>
+                            <li>
+                                <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                    ' . csrf_field() . method_field('DELETE') . '
+                                    <button type="button" class="dropdown-item remove-item-btn show-confirm">
+                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                ';
+                })
+                ->rawColumns(['image', 'status', 'action'])
+                ->make(true);
+        }
+        return view('pages.car-manufacture.index');
+    }
     /**
      * Show the form for creating a new resource.
      */

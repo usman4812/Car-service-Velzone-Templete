@@ -6,19 +6,73 @@ use App\Models\Product;
 use App\Models\Categories;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use GuzzleHttp\Handler\Proxy;
+use App\Http\Controllers\Controller;
+use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $products = Product::all();
-        return view('pages.product.index', compact('products'));
+public function index(Request $request)
+{
+    if ($request->ajax()) {
+        $data = Product::with(['category', 'subCategory'])
+            ->select(['id', 'image', 'name', 'category_id', 'sub_category_id', 'code', 'price', 'warranty', 'date', 'status']);
+
+        return DataTables::of($data)
+            ->addIndexColumn()
+            ->addColumn('image', function ($row) {
+                $imagePath = asset('storage/product/' . ($row->image ?? 'avatar.png'));
+                return '<img src="' . $imagePath . '" alt="Product" width="80" height="50" class="img-thumbnail" />';
+            })
+            ->addColumn('category', function ($row) {
+                return $row->category->name ?? '-';
+            })
+            ->addColumn('sub_category', function ($row) {
+                return $row->subCategory->name ?? '-';
+            })
+            ->addColumn('status', function ($row) {
+                return $row->status === 'active'
+                    ? '<span class="badge bg-success">Active</span>'
+                    : '<span class="badge bg-danger">Inactive</span>';
+            })
+            ->addColumn('action', function ($row) {
+                $editUrl = route('products.edit', $row->id);
+                $deleteUrl = route('products.destroy', $row->id);
+
+                return '
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="ri-more-fill align-middle"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
+                                <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                            </a>
+                        </li>
+                        <li>
+                            <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                ' . csrf_field() . method_field('DELETE') . '
+                                <button type="button" class="dropdown-item remove-item-btn show-confirm">
+                                    <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+                ';
+            })
+            ->rawColumns(['image', 'status', 'action'])
+            ->make(true);
     }
+
+    return view('pages.product.index');
+}
+
 
     /**
      * Show the form for creating a new resource.

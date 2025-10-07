@@ -9,7 +9,8 @@
                 </div><!-- end card header -->
                 <div class="card-body">
                     <div class="live-preview">
-                        <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('products.update', $product->id) }}" method="POST"
+                            enctype="multipart/form-data">
                             @method('PUT')
                             @csrf
                             <div class="row">
@@ -119,8 +120,13 @@
                                 </div>
                                 <!--end col-->
                                 <div class="col-lg-12">
-                                    <div class="text-end">
-                                        <button type="submit" class="btn btn-primary">Update</button>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a href="{{ route('products.index') }}" class="btn btn-danger waves-effect">
+                                            <i class="ri-arrow-left-line align-middle me-1"></i> Back
+                                        </a>
+                                        <div class="text-end">
+                                            <button type="submit" class="btn btn-primary">Update</button>
+                                        </div>
                                     </div>
                                 </div>
                                 <!--end col-->

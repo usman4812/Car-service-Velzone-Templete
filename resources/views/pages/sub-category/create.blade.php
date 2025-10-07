@@ -30,7 +30,8 @@
                                     <div class="mb-3">
                                         <label for="name" class="form-label">Sub Category Name<span class="text-danger">
                                                 *</span></label>
-                                        <input type="text" name="name" class="form-control" placeholder="Sub Category Name">
+                                        <input type="text" name="name" class="form-control"
+                                            placeholder="Sub Category Name">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -54,8 +55,13 @@
                                 </div>
                                 <!--end col-->
                                 <div class="col-lg-12">
-                                    <div class="text-end">
-                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a href="{{ route('sub-categories.index') }}" class="btn btn-danger waves-effect">
+                                            <i class="ri-arrow-left-line align-middle me-1"></i> Back
+                                        </a>
+                                        <div class="text-end">
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
                                     </div>
                                 </div>
                                 <!--end col-->

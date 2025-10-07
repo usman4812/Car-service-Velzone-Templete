@@ -1,27 +1,25 @@
 @extends('layouts.master')
 @section('title', 'Products')
 @section('content')
-    <!-- end page title -->
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0 flex-grow-1">Products</h5>
                     <div>
-                        <a id="addRow" href="{{ route('products.create') }}" class="btn btn-primary">Add Product</a>
+                        <a href="{{ route('products.create') }}" class="btn btn-primary">Add Product</a>
                     </div>
                 </div>
-
                 <div class="card-body">
-                    <table id="example" class="table table-bordered dt-responsive nowrap table-striped align-middle"
+                    <table id="products-table" class="table table-bordered dt-responsive nowrap table-striped align-middle"
                         style="width:100%">
                         <thead>
                             <tr>
-                                <th data-ordering="false">SR No.</th>
-                                <th data-ordering="false">Image</th>
-                                <th data-ordering="false">Name</th>
-                                <th data-ordering="false">Category</th>
-                                <th data-ordering="false">Sub Category</th>
+                                <th>SR No.</th>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Sub Category</th>
                                 <th>Code</th>
                                 <th>Price</th>
                                 <th>Warranty</th>
@@ -30,71 +28,82 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach ($products as $key => $product)
-                                <tr>
-                                    <td>{{ $key + 1 }}</td>
-                                    <td>
-                                         <img src="{{ asset('storage/product/' . ($product->image ?? 'avatar.png')) }}"
-                                            width="90" height="60" class="img-thumbnail">
-                                    </td>
-                                    <td>{{ $product->name }}</td>
-                                    <td>{{ $product->category->name }}</td>
-                                    <td>{{ $product->subCategory->name }}</td>
-                                    <td>{{ $product->code }}</td>
-                                    <td>{{ $product->price }}</td>
-                                    <td>{{ $product->warranty }}</td>
-                                    <td>{{ $product->date }}</td>
-                                    <td>
-                                        @if ($product->status == 'active')
-                                            <span class="badge bg-success">Active</span>
-                                        @else
-                                            <span class="badge bg-danger">Inactive</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="dropdown d-inline-block">
-                                            <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
-                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ri-more-fill align-middle"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                    <a href="{{ route('products.edit', $product->id) }}"
-                                                        class="dropdown-item edit-item-btn">
-                                                        <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <form action="{{ route('products.destroy', $product->id) }}"
-                                                        method="POST" style="display:inline;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="button"
-                                                            class="dropdown-item remove-item-btn show-confirm">
-                                                            <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
-                                                            Delete
-                                                        </button>
-                                                    </form>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
                     </table>
                 </div>
             </div>
-        </div><!--end col-->
+        </div>
     </div>
 @endsection
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.show-confirm').forEach(function(button) {
-            button.addEventListener('click', function(e) {
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            $('#products-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('products.index') }}",
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'image',
+                        name: 'image',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'category',
+                        name: 'category.name'
+                    },
+                    {
+                        data: 'sub_category',
+                        name: 'subCategory.name'
+                    },
+                    {
+                        data: 'code',
+                        name: 'code'
+                    },
+                    {
+                        data: 'price',
+                        name: 'price'
+                    },
+                    {
+                        data: 'warranty',
+                        name: 'warranty'
+                    },
+                    {
+                        data: 'date',
+                        name: 'date'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ],
+                order: [],
+                responsive: true,
+                pageLength: 10
+            });
+
+            // SweetAlert Delete Confirmation
+            $(document).on('click', '.show-confirm', function(e) {
                 e.preventDefault();
-                let form = this.closest('form');
+                let form = $(this).closest('form');
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "This action cannot be undone!",
@@ -110,5 +119,5 @@
                 });
             });
         });
-    });
-</script>
+    </script>
+@endpush

@@ -60,8 +60,13 @@
                                 </div>
                                 <!--end col-->
                                 <div class="col-lg-12">
-                                    <div class="text-end">
-                                        <button type="submit" class="btn btn-primary">Update</button>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a href="{{ route('car-manufactures.index') }}" class="btn btn-danger waves-effect">
+                                            <i class="ri-arrow-left-line align-middle me-1"></i> Back
+                                        </a>
+                                        <div class="text-end">
+                                            <button type="submit" class="btn btn-primary">Update</button>
+                                        </div>
                                     </div>
                                 </div>
                                 <!--end col-->

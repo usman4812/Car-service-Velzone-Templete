@@ -9,30 +9,33 @@
                 </div><!-- end card header -->
                 <div class="card-body">
                     <div class="live-preview">
-                        <form action="{{route('sales-persons.store')}}" method="POST">
+                        <form action="{{ route('sales-persons.store') }}" method="POST">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="name" class="form-label">Full Name<span class="text-danger"> *</span></label>
-                                        <input type="text" name="name" class="form-control" placeholder="Enter your Full Name"
-                                            id="name" required>
+                                        <label for="name" class="form-label">Full Name<span class="text-danger">
+                                                *</span></label>
+                                        <input type="text" name="name" class="form-control"
+                                            placeholder="Enter your Full Name" id="name" required>
                                     </div>
                                 </div>
                                 <!--end col-->
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="email" class="form-label">Email Address<span class="text-danger"> *</span></label>
-                                        <input type="email" name="email" class="form-control" placeholder="example@gamil.com"
-                                            id="email" required>
+                                        <label for="email" class="form-label">Email Address<span class="text-danger">
+                                                *</span></label>
+                                        <input type="email" name="email" class="form-control"
+                                            placeholder="example@gamil.com" id="email" required>
                                     </div>
                                 </div>
                                 <!--end col-->
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="phonenumberInput" class="form-label">Phone Number<span class="text-danger"> *</span></label>
-                                        <input type="tel" name="phone" class="form-control" placeholder="+(880) 451 45123"
-                                            id="phonenumberInput" required>
+                                        <label for="phonenumberInput" class="form-label">Phone Number<span
+                                                class="text-danger"> *</span></label>
+                                        <input type="tel" name="phone" class="form-control"
+                                            placeholder="+(880) 451 45123" id="phonenumberInput" required>
                                     </div>
                                 </div>
                                 <!--end col-->
@@ -40,7 +43,8 @@
                                 <!--end col-->
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="salary" class="form-label">Salary<span class="text-danger"> *</span></label>
+                                        <label for="salary" class="form-label">Salary<span class="text-danger">
+                                                *</span></label>
                                         <input type="number" name="salary" class="form-control" placeholder="Enter Salary"
                                             id="salary" required>
                                     </div>
@@ -48,9 +52,10 @@
                                 <!--end col-->
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="citynameInput" class="form-label">Joining Date<span class="text-danger"> *</span></label>
-                                        <input type="date"  name="joining_date" class="form-control" placeholder="Enter Joining Date"
-                                            id="citynameInput" required>
+                                        <label for="citynameInput" class="form-label">Joining Date<span class="text-danger">
+                                                *</span></label>
+                                        <input type="date" name="joining_date" class="form-control"
+                                            placeholder="Enter Joining Date" id="citynameInput" required>
                                     </div>
                                 </div>
                                 <!--end col-->
@@ -65,17 +70,21 @@
                                         </select>
                                     </div>
                                 </div>
-                                 <div class="col-md-12">
+                                <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="address" class="form-label">Address</label>
-                                        <textarea type="text" name="address" class="form-control" placeholder="Address"
-                                            id="address"></textarea>
+                                        <textarea type="text" name="address" class="form-control" placeholder="Address" id="address"></textarea>
                                     </div>
                                 </div>
                                 <!--end col-->
                                 <div class="col-lg-12">
-                                    <div class="text-end">
-                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a href="{{ route('sales-persons.index') }}" class="btn btn-danger waves-effect">
+                                            <i class="ri-arrow-left-line align-middle me-1"></i> Back
+                                        </a>
+                                        <div class="text-end">
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
                                     </div>
                                 </div>
                                 <!--end col-->
