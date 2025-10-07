@@ -5,17 +5,58 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Categories;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class CategoriesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Categories::all();
-        return view('pages.category.index', compact('categories'));
+        if ($request->ajax()) {
+            $data = Categories::select(['id', 'name', 'date', 'status']);
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('status', function ($row) {
+                    return $row->status == 'active'
+                        ? '<span class="badge bg-success">Active</span>'
+                        : '<span class="badge bg-danger">Inactive</span>';
+                })
+                ->addColumn('action', function ($row) {
+                    $editUrl = route('categories.edit', $row->id);
+                    $deleteUrl = route('categories.destroy', $row->id);
+
+                    return '
+                    <div class="dropdown d-inline-block">
+                        <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="ri-more-fill align-middle"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
+                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                                </a>
+                            </li>
+                            <li>
+                                <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                    ' . csrf_field() . method_field('DELETE') . '
+                                    <button type="button" class="dropdown-item remove-item-btn show-confirm">
+                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                ';
+                })
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+        }
+
+        return view('pages.category.index');
     }
+
 
     /**
      * Show the form for creating a new resource.

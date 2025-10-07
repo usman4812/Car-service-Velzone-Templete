@@ -118,11 +118,11 @@
                      <div class="collapse menu-dropdown" id="sidebarLayouts">
                          <ul class="nav nav-sm flex-column">
                              <li class="nav-item">
-                                 <a href="" target="_blank" class="nav-link"
+                                 <a href="{{ route('customers.index')}}" target="_blank" class="nav-link"
                                      data-key="t-horizontal">List</a>
                              </li>
                              <li class="nav-item">
-                                 <a href="" target="_blank" class="nav-link"
+                                 <a href="{{ route('customers.create')}}" target="_blank" class="nav-link"
                                      data-key="t-detached">Create</a>
                              </li>
                          </ul>
