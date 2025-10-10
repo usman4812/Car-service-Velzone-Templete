@@ -25,4 +25,9 @@ class Categories extends Model
     {
         return $this->hasMany(Product::class, 'category_id');
     }
+
+    public function jobCardItems()
+    {
+        return $this->hasMany(JobCardItem::class, 'category_id');
+    }
 }

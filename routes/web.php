@@ -29,13 +29,13 @@ use App\Http\Controllers\Admin\CarManufacturesController;
 
 
 // Route::middleware('guest')->group(function () {
-    Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('login', [AuthController::class, 'login'])->name('login.submit');
+Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('login', [AuthController::class, 'login'])->name('login.submit');
 // });
 
 Route::middleware('auth')->group(function () {
-   Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::resource('sales-persons',SalePersonController::class);
+    Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::resource('sales-persons', SalePersonController::class);
 
     // Manager dashboard
     Route::get('manager/dashboard', [DashboardController::class, 'index'])->name('manager.dashboard');
@@ -44,20 +44,27 @@ Route::middleware('auth')->group(function () {
     Route::get('user/dashboard', [DashboardController::class, 'index'])->name('user.dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::resource('job-card',JobCardController::class);
-    Route::resource('customers',CustomerController::class);
-    Route::resource('categories',CategoriesController::class);
-    Route::resource('sub-categories',SubCategoryController::class);
-    Route::resource('car-manufactures',CarManufacturesController::class);
-    Route::resource('blog',BlogController::class);
-    Route::resource('products',ProductController::class);
-    Route::resource('Report',ReportController::class);
-    Route::resource('replacement',ReplacementController::class);
-    Route::resource('contacts',ContactsController::class);
-    Route::resource('services',ServiceController::class);
-    Route::resource('workers',WorkerController::class);
-    Route::resource('works',WorksController::class);
+    Route::resource('job-card', JobCardController::class);
+    Route::resource('customers', CustomerController::class);
+    Route::resource('categories', CategoriesController::class);
+    Route::resource('sub-categories', SubCategoryController::class);
+    Route::resource('car-manufactures', CarManufacturesController::class);
+    Route::resource('blog', BlogController::class);
+    Route::resource('products', ProductController::class);
+    Route::resource('Report', ReportController::class);
+    Route::resource('replacement', ReplacementController::class);
+    Route::resource('contacts', ContactsController::class);
+    Route::resource('services', ServiceController::class);
+    Route::resource('workers', WorkerController::class);
+    Route::resource('works', WorksController::class);
 
+    // inovice show job card
+    Route::get('job-card/{id}/invoice', [JobCardController::class, 'showInvoice'])
+    ->name('job-card.invoice');
+
+    // Ajax Route
     Route::get('/get-subcategories/{category_id}', [AjaxController::class, 'getSubCategories'])->name('get.subcategories');
-
+    Route::get('/get-products/{subcategory_id}', [AjaxController::class, 'getProducts'])->name('get.products');
+    Route::get('/get-product-price/{product_id}', [AjaxController::class, 'getProductPrice'])->name('get.procuct.price');
+    Route::get('/get-new-item-row', [AjaxController::class, 'getNewItemRow'])->name('get.new.item.row');
 });

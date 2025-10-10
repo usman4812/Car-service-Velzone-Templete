@@ -34,4 +34,9 @@ class Product extends Model
     {
         return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
+
+    public function jobCardItems()
+    {
+        return $this->hasMany(JobCardItem::class, 'product_id');
+    }
 }

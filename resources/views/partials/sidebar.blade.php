@@ -91,7 +91,7 @@
                         </ul>
                     </div>
                 </li> <!-- end Dashboard Menu -->
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebarApps" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="sidebarApps">
                         <i class="ri-apps-2-line"></i> <span data-key="t-apps">Job Card</span>
@@ -107,6 +107,11 @@
                             </li>
                         </ul>
                     </div>
+                </li> --}}
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="{{ route('job-card.index') }}">
+                        <i class="ri-apps-2-line"></i> <span data-key="t-widgets">Job Card</span>
+                    </a>
                 </li>
 
                 {{-- <li class="nav-item">

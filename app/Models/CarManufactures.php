@@ -17,4 +17,9 @@ class CarManufactures extends Model
         'date',
     ];
 
+    public function jobCards()
+    {
+        return $this->hasMany(JobCard::class, 'car_manufacture_id');
+    }
+    
 }

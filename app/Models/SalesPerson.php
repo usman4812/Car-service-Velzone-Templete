@@ -19,4 +19,9 @@ class SalesPerson extends Model
         'address',
         'status',
     ];
+
+    public function jobCards()
+    {
+        return $this->hasMany(JobCard::class, 'sale_person_id');
+    }
 }
