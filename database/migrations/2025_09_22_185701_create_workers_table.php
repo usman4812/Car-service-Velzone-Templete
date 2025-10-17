@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('workers', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('desigination')->nullable();
+            $table->string('designation')->nullable();
             $table->string('image')->nullable();
             $table->string('date')->nullable();
             $table->string('status')->default('active');

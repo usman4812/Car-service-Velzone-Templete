@@ -67,4 +67,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/get-products/{subcategory_id}', [AjaxController::class, 'getProducts'])->name('get.products');
     Route::get('/get-product-price/{product_id}', [AjaxController::class, 'getProductPrice'])->name('get.procuct.price');
     Route::get('/get-new-item-row', [AjaxController::class, 'getNewItemRow'])->name('get.new.item.row');
+    Route::get('/get-customer-details/{id}', [CustomerController::class, 'getCustomerDetails'])->name('get.customer.details');
 });

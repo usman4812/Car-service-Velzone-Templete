@@ -1,5 +1,8 @@
 @extends('layouts.master')
 @section('title', 'Job Card')
+@section('head')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+@endsection
 @section('content')
     <div class="row">
         <div class="col-xxl-12">
@@ -11,6 +14,7 @@
                     <div class="live-preview">
                         <form action="{{ route('job-card.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}" />
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
@@ -24,21 +28,32 @@
                                     <div class="mb-3">
                                         <label for="date" class="form-label">Date<span class="text-danger">
                                                 *</span></label>
-                                        <input type="date" name="date" class="form-control" required>
+                                        <input type="date" name="date" class="form-control" value="{{ date('Y-m-d') }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="name" class="form-label">Customer Name<span class="text-danger">
+                                        <label for="customer_id" class="form-label">Customer Name<span class="text-danger">
                                                 *</span></label>
-                                        <input type="text" name="name" class="form-control"
-                                            placeholder="Enter Customer Name" required>
+                                        <div class="d-flex gap-2">
+                                            <select id="customer_id" class="form-select" data-choices
+                                                data-choices-sorting="true" name="customer_id" required>
+                                                <option value="">Select Customer</option>
+                                                @foreach ($customers as $id => $customer)
+                                                    <option value="{{ $id }}" data-name="{{ $customer }}">{{ $customer }}</option>
+                                                @endforeach
+                                            </select>
+                                            <button type="button" class="btn btn-soft-primary" id="addNewCustomerBtn">
+                                                <i class="ri-add-line align-middle"></i>
+                                            </button>
+                                        </div>
+
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Email</label>
-                                        <input type="email" name="email" class="form-control"
+                                        <input type="email" name="email" class="form-control" id="email"
                                             placeholder="Enter Email Address">
                                     </div>
                                 </div>
@@ -227,28 +242,45 @@
                                         <div class="table-responsive">
                                             <table class="table table-borderless align-middle">
                                                 <tr>
-                                                    <th>Amount</th>
+                                                    <th>Subtotal (Amount)</th>
                                                     <td class="text-end">AED</td>
                                                     <td><input type="text" id="amount" name="amount"
                                                             class="form-control text-end" value="0.00" readonly></td>
                                                 </tr>
-                                                <tr>
-                                                    <th>VAT %</th>
-                                                    <td class="text-end">AED</td>
-                                                    <td><input type="number" id="vat" name="vat"
-                                                            class="form-control text-end" value="0"></td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Discount %</th>
-                                                    <td class="text-end">AED</td>
-                                                    <td><input type="number" id="discount"  name="discount"
-                                                            class="form-control text-end" placeholder="Discount"
-                                                            value="0"></td>
-                                                </tr>
+
                                                 <tr>
                                                     <th>Net Amount</th>
                                                     <td class="text-end">AED</td>
-                                                    <td><input type="text" id="net_amount" name="net_amount"
+                                                    <td><input type="number" id="net_amount" name="net_amount"
+                                                            class="form-control text-end" value="0.00"></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Discount Amount</th>
+                                                    <td class="text-end">AED</td>
+                                                    <td><input type="text" id="discount_amount" name="discount_amount"
+                                                            class="form-control text-end" value="0.00" readonly></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Discount %</th>
+                                                    <td class="text-end">%</td>
+                                                    <td><input type="number" id="discount_percent"
+                                                            name="discount_percent" class="form-control text-end"
+                                                            value="0"></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>VAT (5%)</th>
+                                                    <td class="text-end">AED</td>
+                                                    <td><input type="text" id="vat_amount" name="vat_amount"
+                                                            class="form-control text-end" value="5" readonly></td>
+                                                </tr>
+
+                                                <tr class="border-top">
+                                                    <th>Total Payable</th>
+                                                    <td class="text-end">AED</td>
+                                                    <td><input type="text" id="total_payable" name="total_payable"
                                                             class="form-control text-end fw-semibold" value="0.00"
                                                             readonly></td>
                                                 </tr>
@@ -256,7 +288,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                                 <!--end col-->
                                 <div class="col-lg-12">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -282,13 +313,159 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Add New Customer Button Click
+            $('#addNewCustomerBtn').click(function() {
+                $('#addCustomerModal').modal('show');
+            });
 
-            // Load subcategories when category changes
-            $(document).on('change', '.category_id', function() {
+            // Save New Customer
+            $('#newCustomerForm').on('submit', function(e) {
+                e.preventDefault();
+                var customerData = {
+                    name: $('#newCustomerName').val(),
+                    email: $('#newCustomerEmail').val(),
+                    phone: $('#newCustomerPhone').val(),
+                    car_model: $('#newCustomerCarModel').val(),
+                    car_plat_no: $('#newCustomerCarPlate').val(),
+                    address: $('#newCustomerAddress').val(),
+                    date: $('#newCustomerDate').val(),
+                    status: $('#newCustomerStatus').val(),
+                    _token: '{{ csrf_token() }}'
+                };
+
+                if (!customerData.name || !customerData.phone) {
+                    Swal.fire({
+                        title: 'Validation Error!',
+                        text: 'Please fill in all required fields',
+                        icon: 'warning',
+                        confirmButtonClass: 'btn btn-primary w-xs mt-2',
+                        buttonsStyling: false,
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('customers.store') }}",
+                    type: "POST",
+                    data: customerData,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Add new customer to dropdown
+                            var newOption = new Option(response.customer.name, response.customer.id, true, true);
+                            $(newOption).attr('data-name', response.customer.name);
+                            $('#customer_id').append(newOption).trigger('change');
+                            $('#email').val(response.customer.email || '');
+                            $('#phone').val(response.customer.phone || '');
+                            $('#car_model').val(response.customer.car_model || '');
+                            $('#car_plat_no').val(response.customer.car_plat_no || '');
+                            $('#chassis_no').val(response.customer.chassis_no || '');
+
+                            // Close modal and clear fields
+                            $('#addCustomerModal').modal('hide');
+                            $('#newCustomerName').val('');
+                            $('#newCustomerEmail').val('');
+                            $('#newCustomerPhone').val('');
+                            $('#newCustomerCarModel').val('');
+                            $('#newCustomerCarPlate').val('');
+                            $('#newCustomerAddress').val('');
+                            $('#newCustomerDate').val('{{ date('Y-m-d') }}');
+                            $('#newCustomerStatus').val('active');
+
+                            // Show success message
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Customer has been added successfully!',
+                                icon: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'OK'
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: response.message || 'Failed to add customer.',
+                                icon: 'error',
+                                showCancelButton: false,
+                                confirmButtonColor: '#d33',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Something went wrong. Please try again.',
+                            icon: 'error',
+                            showCancelButton: false,
+                            confirmButtonColor: '#d33',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            });
+            // Customer Selection Change
+            $(document).on('change', '#customer_id', function() {
+                var customerId = $(this).val();
+
+                if (customerId) {
+                    $.ajax({
+                        url: "{{ url('/get-customer-details') }}/" + customerId,
+                        type: "GET",
+                        success: function(data) {
+                            console.log('Customer data:', data); // Debug log
+
+                            // Fill in all customer-related fields
+                            $('#email').val(data.email || '');
+                            $('#phone').val(data.phone || '');
+                            $('#car_model').val(data.car_model || '');
+                            $('#car_plat_no').val(data.car_plat_no || '');
+                            $('#chassis_no').val(data.chassis_no || '');
+
+                            // If car manufacture exists, select it in the dropdown
+                            if (data.car_manufacture_id) {
+                                $('#car_manufacture_id').val(data.car_manufacture_id).trigger('change');
+                            }
+
+                            // If manufacturing year exists, select it in the dropdown
+                            if (data.manu_year) {
+                                $('#manu_year').val(data.manu_year).trigger('change');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error:', error); // Debug log
+                            // Clear all fields if there's an error
+                            $('#email').val('');
+                            $('#phone').val('');
+                            $('#car_model').val('');
+                            $('#car_plat_no').val('');
+                            $('#chassis_no').val('');
+                            $('#car_manufacture_id').val('').trigger('change');
+                            $('#manu_year').val('').trigger('change');
+                        }
+                    });
+                } else {
+                    // Clear all fields if no customer is selected
+                    $('#email').val('');
+                    $('#phone').val('');
+                    $('#car_model').val('');
+                    $('#car_plat_no').val('');
+                    $('#chassis_no').val('');
+                    $('#car_manufacture_id').val('').trigger('change');
+                    $('#manu_year').val('').trigger('change');
+                }
+            });
+
+            // ---------------------------
+            // Load Subcategories
+            // ---------------------------
+            $(document).on("change", ".category_id", function() {
                 var category_id = $(this).val();
-                var row = $(this).closest('.item-row');
-                var subCategoryDropdown = row.find('.sub_category_id');
-                var productDropdown = row.find('.product_id');
+                var row = $(this).closest(".item-row");
+                var subCategoryDropdown = row.find(".sub_category_id");
+                var productDropdown = row.find(".product_id");
 
                 subCategoryDropdown.html('<option value="">Loading...</option>');
                 productDropdown.html('<option value="">Select Product</option>');
@@ -311,11 +488,13 @@
                 }
             });
 
-            // Load products when subcategory changes
-            $(document).on('change', '.sub_category_id', function() {
+            // ---------------------------
+            // Load Products
+            // ---------------------------
+            $(document).on("change", ".sub_category_id", function() {
                 var sub_category_id = $(this).val();
-                var row = $(this).closest('.item-row');
-                var productDropdown = row.find('.product_id');
+                var row = $(this).closest(".item-row");
+                var productDropdown = row.find(".product_id");
 
                 productDropdown.html('<option value="">Loading...</option>');
 
@@ -337,10 +516,12 @@
                 }
             });
 
-            // When Product Changes → set qty, price, total
-            $(document).on('change', '.product_id', function() {
+            // ---------------------------
+            // Product Change → Load Price
+            // ---------------------------
+            $(document).on("change", ".product_id", function() {
                 var product_id = $(this).val();
-                var row = $(this).closest('.item-row');
+                var row = $(this).closest(".item-row");
 
                 if (product_id) {
                     $.ajax({
@@ -348,80 +529,155 @@
                         type: "GET",
                         success: function(data) {
                             var price = parseFloat(data.price) || 0;
-                            row.find('.qty').val(1);
-                            row.find('.price').val(price.toFixed(2));
-                            row.find('.total').val(price.toFixed(2));
+                            row.find(".qty").val(1);
+                            row.find(".price").val(price.toFixed(2));
+                            row.find(".total").val(price.toFixed(2));
                             calculateTotals();
                         }
                     });
                 } else {
-                    row.find('.qty, .price, .total').val('');
+                    row.find(".qty, .price, .total").val("");
                     calculateTotals();
                 }
             });
 
-            // When Qty or Price Changes → update total for that row + global total
-            $(document).on('input', '.qty, .price', function() {
-                var row = $(this).closest('.item-row');
-                var qty = parseFloat(row.find('.qty').val()) || 0;
-                var price = parseFloat(row.find('.price').val()) || 0;
+            // ---------------------------
+            // Qty or Price Change
+            // ---------------------------
+            $(document).on("input", ".qty, .price", function() {
+                var row = $(this).closest(".item-row");
+                var qty = parseFloat(row.find(".qty").val()) || 0;
+                var price = parseFloat(row.find(".price").val()) || 0;
                 var total = qty * price;
-                row.find('.total').val(total.toFixed(2));
+                row.find(".total").val(total.toFixed(2));
                 calculateTotals();
             });
 
-            // Add new row via AJAX
-            $(document).on('click', '.addRow', function() {
+            // ---------------------------
+            // Add Row
+            // ---------------------------
+            $(document).on("click", ".addRow", function() {
                 $.ajax({
                     url: "{{ route('get.new.item.row') }}",
                     type: "GET",
                     success: function(response) {
-                        $('#itemRows').append(response.html);
+                        $("#itemRows").append(response.html);
                         calculateTotals();
                     },
                     error: function() {
-                        alert('Failed to add new row.');
+                        alert("Failed to add new row.");
                     }
                 });
             });
 
-            // Remove row
-            $(document).on('click', '.removeRow', function() {
-                var allRows = $('.item-row');
+            // ---------------------------
+            // Remove Row
+            // ---------------------------
+            $(document).on("click", ".removeRow", function() {
+                var allRows = $(".item-row");
                 if (allRows.length > 1) {
-                    $(this).closest('.item-row').remove();
+                    $(this).closest(".item-row").remove();
                     calculateTotals();
                 } else {
-                    alert('You must have at least one item row.');
+                    alert("You must have at least one item row.");
                 }
             });
 
-            // Global Total Calculation Function
+            // ---------------------------
+            // Calculation Logic
+            // ---------------------------
+            let netEdited = false;
+            let lastDiscountPercent = 0; // Track latest discount percentage entered or derived
+
+            // Main Calculation
             function calculateTotals() {
-                let amount = 0;
+                let subtotal = 0;
 
                 $('.total').each(function() {
                     let val = parseFloat($(this).val()) || 0;
-                    amount += val;
+                    subtotal += val;
                 });
 
-                $('#amount').val(amount.toFixed(2));
+                $('#amount').val(subtotal.toFixed(2));
 
-                let vatPercent = parseFloat($('#vat').val()) || 0;
-                let discountPercent = parseFloat($('#discount').val()) || 0;
+                let netAmount = parseFloat($('#net_amount').val()) || 0;
 
-                let vatValue = (amount * vatPercent) / 100;
-                let discountValue = (amount * discountPercent) / 100;
+                // 🧠 Case 1: If user never edited → keep net = subtotal
+                if (!netEdited) {
+                    netAmount = subtotal;
+                    $('#net_amount').val(netAmount.toFixed(2));
+                    lastDiscountPercent = 0;
+                }
+                // 🧠 Case 2: If subtotal changes & user edited before → maintain same discount %
+                else if (subtotal > 0 && lastDiscountPercent > 0) {
+                    let discountAmount = (subtotal * lastDiscountPercent) / 100;
+                    netAmount = subtotal - discountAmount;
+                    $('#net_amount').val(netAmount.toFixed(2));
+                }
 
-                let netAmount = amount + vatValue - discountValue;
+                // 🧮 Recalculate dependent fields
+                let discountAmount = subtotal - netAmount;
+                let discountPercent = subtotal > 0 ? (discountAmount / subtotal) * 100 : 0;
+                let vatAmount = (netAmount * 5) / 100;
+                let totalPayable = netAmount + vatAmount;
 
-                $('#net_amount').val(netAmount.toFixed(2));
+                // Update all UI fields
+                $('#discount_amount').val(discountAmount.toFixed(2));
+                $('#discount_percent').val(discountPercent.toFixed(2));
+                $('#vat_amount').val(vatAmount.toFixed(2));
+                $('#total_payable').val(totalPayable.toFixed(2));
+
+                // Remember last known % (for dynamic updates)
+                lastDiscountPercent = discountPercent;
             }
 
-            // Recalculate when VAT or discount changes
-            $(document).on('input', '#vat, #discount', function() {
+            // 🧩 User manually edits Net Amount
+            $(document).on('input', '#net_amount', function() {
+                netEdited = true;
+
+                let subtotal = parseFloat($('#amount').val()) || 0;
+                let netAmount = parseFloat($(this).val()) || 0;
+                let discountAmount = subtotal - netAmount;
+                let discountPercent = subtotal > 0 ? (discountAmount / subtotal) * 100 : 0;
+                let vatAmount = (netAmount * 5) / 100;
+                let totalPayable = netAmount + vatAmount;
+
+                $('#discount_amount').val(discountAmount.toFixed(2));
+                $('#discount_percent').val(discountPercent.toFixed(2));
+                $('#vat_amount').val(vatAmount.toFixed(2));
+                $('#total_payable').val(totalPayable.toFixed(2));
+
+                lastDiscountPercent = discountPercent;
+            });
+
+            // 🧩 User edits Discount %
+            $(document).on('input', '#discount_percent', function() {
+                netEdited = true;
+
+                let subtotal = parseFloat($('#amount').val()) || 0;
+                let discountPercent = parseFloat($(this).val()) || 0;
+                let discountAmount = (subtotal * discountPercent) / 100;
+                let netAmount = subtotal - discountAmount;
+                let vatAmount = (netAmount * 5) / 100;
+                let totalPayable = netAmount + vatAmount;
+
+                $('#discount_amount').val(discountAmount.toFixed(2));
+                $('#net_amount').val(netAmount.toFixed(2));
+                $('#vat_amount').val(vatAmount.toFixed(2));
+                $('#total_payable').val(totalPayable.toFixed(2));
+
+                lastDiscountPercent = discountPercent;
+            });
+
+            // 🧩 Whenever products or qty change → recalc with preserved discount ratio
+            $(document).on('input change', '.qty, .price, .total', function() {
                 calculateTotals();
             });
 
+            // 🧩 When rows added or removed
+            $(document).on('click', '.addRow, .removeRow', function() {
+                setTimeout(calculateTotals, 150);
+            });
         });
     </script>
+

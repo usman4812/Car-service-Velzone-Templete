@@ -77,8 +77,17 @@ class CustomerController extends Controller
             'name'         => 'required|string|max:255',
             'phone'        => 'required|string',
         ]);
-        $req_data = $request->all();
-        $customer = Customer::create($req_data);
+
+        $customer = Customer::create($request->all());
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'customer' => $customer,
+                'message' => 'Customer created successfully'
+            ]);
+        }
+
         return redirect()->route('customers.index')
             ->with('success', 'Customer Created Successfully');
     }
@@ -132,5 +141,26 @@ class CustomerController extends Controller
         } else {
             return redirect()->route('customers.index')->with('error', 'Record not found');
         }
+    }
+
+    /**
+     * Get customer details for AJAX request
+     */
+    public function getCustomerDetails($id)
+    {
+        $customer = Customer::find($id);
+        if ($customer) {
+            return response()->json([
+                'email' => $customer->email,
+                'phone' => $customer->phone,
+                'car_model' => $customer->car_model,
+                'car_plat_no' => $customer->car_plat_no,
+                'chassis_no' => $customer->chassis_no,
+                'car_manufacture_id' => $customer->car_manufacture_id,
+                'manu_year' => $customer->manu_year,
+                'address' => $customer->address
+            ]);
+        }
+        return response()->json([]);
     }
 }

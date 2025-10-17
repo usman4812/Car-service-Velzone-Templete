@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('car_manufacture_id')->nullable();
             $table->unsignedBigInteger('sale_person_id')->nullable();
+            $table->unsignedBigInteger('customer_id')->nullable();
             $table->string('job_card_no')->nullable();
             $table->string('date')->nullable();
             $table->string('name')->nullable();
@@ -29,11 +30,14 @@ return new class extends Migration
             $table->string('promo')->nullable();
             $table->string('remarks')->nullable();
             $table->decimal('amount', 10, 2)->nullable();
-            $table->decimal('vat', 5, 2)->nullable();
-            $table->decimal('discount', 10, 2)->nullable();
             $table->decimal('net_amount', 10, 2)->nullable();
+            $table->decimal('discount_amount', 10, 2)->nullable();
+            $table->decimal('discount_percent', 10, 2)->nullable();
+            $table->decimal('vat_amount', 5, 2)->nullable();
+            $table->decimal('total_payable', 10, 2)->nullable();
             $table->foreign('car_manufacture_id')->references('id')->on('car_manufactures');
             $table->foreign('sale_person_id')->references('id')->on('sales_people');
+            $table->foreign('customer_id')->references('id')->on('customers');
             $table->softDeletes();
             $table->timestamps();
         });

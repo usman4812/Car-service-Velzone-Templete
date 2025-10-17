@@ -4,10 +4,12 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header d-flex align-items-center">
-                    <h5 class="card-title mb-0 flex-grow-1">Job Card List</h5>
-                    <div>
-                        <a href="{{ route('job-card.create') }}" class="btn btn-primary">Add Job Card</a>
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <h5 class="card-title mb-0 flex-grow-1">Job Card List</h5>
+                        <div>
+                            <a href="{{ route('job-card.create') }}" class="btn btn-primary">Add Job Card</a>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -34,7 +36,7 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            $('#jobCard-table').DataTable({
+            var table = $('#jobCard-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('job-card.index') }}",
@@ -47,27 +49,33 @@
                     },
                     {
                         data: 'job_card_no',
-                        name: 'job_card_no'
+                        name: 'job_card_no',
+                        searchable: true
                     },
                     {
                         data: 'name',
-                        name: 'name'
+                        name: 'customer.name', // Search in the customer relationship
+                        searchable: true
                     },
                     {
                         data: 'sale_person_id',
-                        name: 'sale_person_id'
+                        name: 'salesPerson.name', // Search in the salesPerson relationship
+                        searchable: true
                     },
                     {
-                        data: 'sub_total',
-                        name: 'sub_total'
+                        data: 'amount',
+                        name: 'amount',
+                        searchable: false
                     },
                     {
-                        data: 'total',
-                        name: 'total'
+                        data: 'total_payable',
+                        name: 'total_payable',
+                        searchable: false
                     },
                     {
                         data: 'date',
-                        name: 'date'
+                        name: 'date',
+                        searchable: false
                     },
                     {
                         data: 'action',
@@ -79,6 +87,11 @@
                 order: [],
                 responsive: true,
                 pageLength: 10
+            });
+
+            // Sales Person Filter Change
+            $('#sale_person_filter').on('change', function() {
+                table.draw();
             });
 
             // SweetAlert Delete Confirmation

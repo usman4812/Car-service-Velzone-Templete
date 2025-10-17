@@ -32,10 +32,17 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="name" class="form-label">Customer Name<span class="text-danger">
+                                        <label for="customer_id" class="form-label">Customer Name<span class="text-danger">
                                                 *</span></label>
-                                        <input type="text" name="name" class="form-control"
-                                            placeholder="Enter Customer Name" value="{{ $jobCard->name }}" required>
+                                        <select id="customer_id" class="form-select" data-choices
+                                            data-choices-sorting="true" name="customer_id" required>
+                                            <option value="">Select Customer</option>
+                                            @foreach ($customers as $id => $customer)
+                                                <option value="{{ $id }}" {{ $jobCard->customer_id == $id ? 'selected' : '' }}>
+                                                    {{ $customer }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
@@ -257,29 +264,45 @@
                                         <div class="table-responsive">
                                             <table class="table table-borderless align-middle">
                                                 <tr>
-                                                    <th>Amount</th>
+                                                    <th>Subtotal (Amount)</th>
                                                     <td class="text-end">AED</td>
-                                                    <td><input type="text" id="amount" name="amount" value="{{$jobCard->amount}}"
-                                                            class="form-control text-end" value="0.00" readonly></td>
+                                                    <td><input type="text" id="amount" name="amount"
+                                                            class="form-control text-end" value="{{ $jobCard->amount }}" readonly></td>
                                                 </tr>
-                                                <tr>
-                                                    <th>VAT %</th>
-                                                    <td class="text-end">AED</td>
-                                                    <td><input type="number" id="vat" name="vat" value="{{ $jobCard->vat}}"
-                                                            class="form-control text-end" value="0"></td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Discount %</th>
-                                                    <td class="text-end">AED</td>
-                                                    <td><input type="number" id="discount" name="discount" value="{{ $jobCard->discount}}"
-                                                            class="form-control text-end" placeholder="Discount"
-                                                            value="0"></td>
-                                                </tr>
+
                                                 <tr>
                                                     <th>Net Amount</th>
                                                     <td class="text-end">AED</td>
-                                                    <td><input type="text" id="net_amount" value="{{ $jobCard->net_amount}}"
-                                                            class="form-control text-end fw-semibold" value="0.00"
+                                                    <td><input type="number" id="net_amount" name="net_amount"
+                                                            class="form-control text-end" value="{{ $jobCard->net_amount }}"></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Discount Amount</th>
+                                                    <td class="text-end">AED</td>
+                                                    <td><input type="text" id="discount_amount" name="discount_amount"
+                                                            class="form-control text-end" value="{{ $jobCard->discount_amount }}" readonly></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Discount %</th>
+                                                    <td class="text-end">%</td>
+                                                    <td><input type="number" id="discount_percent" name="discount_percent"
+                                                            class="form-control text-end" value="{{ $jobCard->discount_percent }}"></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>VAT (5%)</th>
+                                                    <td class="text-end">AED</td>
+                                                    <td><input type="text" id="vat_amount" name="vat_amount"
+                                                            class="form-control text-end" value="{{ $jobCard->vat_amount }}" readonly></td>
+                                                </tr>
+
+                                                <tr class="border-top">
+                                                    <th>Total Payable</th>
+                                                    <td class="text-end">AED</td>
+                                                    <td><input type="text" id="total_payable" name="total_payable"
+                                                            class="form-control text-end fw-semibold" value="{{ $jobCard->total_payable }}"
                                                             readonly></td>
                                                 </tr>
                                             </table>
@@ -294,8 +317,30 @@
                                             <i class="ri-arrow-left-line align-middle me-1"></i> Back
                                         </a>
                                         <div class="text-end">
-                                            <button type="submit" class="btn btn-primary">Update</button>
+                                            <button type="submit" class="btn btn-primary" id="updateBtn">Update</button>
                                         </div>
+
+                                        @if(session('success'))
+                                            <script>
+                                                document.addEventListener('DOMContentLoaded', function() {
+                                                    Swal.fire({
+                                                        html: '<div class="mt-3">' +
+                                                            '<lord-icon src="https://cdn.lordicon.com/lupuorrc.json" trigger="loop" colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>' +
+                                                            '<div class="mt-4 pt-2 fs-15">' +
+                                                            '<h4>Success!</h4>' +
+                                                            '<p class="text-muted mx-4 mb-0">Job Card has been updated successfully!</p>' +
+                                                            '</div>' +
+                                                            '</div>',
+                                                        showCancelButton: false,
+                                                        showConfirmButton: true,
+                                                        confirmButtonClass: 'btn btn-success w-xs mb-1',
+                                                        confirmButtonText: 'OK',
+                                                        buttonsStyling: false,
+                                                        showCloseButton: true
+                                                    });
+                                                });
+                                            </script>
+                                        @endif
                                     </div>
                                 </div>
                                 <!--end col-->
@@ -312,6 +357,45 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Customer Selection Change
+            $(document).on('change', '#customer_id', function() {
+                var customerId = $(this).val();
+
+                if (customerId) {
+                    $.ajax({
+                        url: "{{ url('/get-customer-details') }}/" + customerId,
+                        type: "GET",
+                        success: function(data) {
+                            // Fill in all customer-related fields
+                            $('#email').val(data.email || '');
+                            $('#phone').val(data.phone || '');
+                            $('#car_model').val(data.car_model || '');
+                            $('#car_plat_no').val(data.car_plat_no || '');
+                            $('#chassis_no').val(data.chassis_no || '');
+
+                            // If car manufacture exists, select it in the dropdown
+                            if (data.car_manufacture_id) {
+                                $('#car_manufacture_id').val(data.car_manufacture_id).trigger('change');
+                            }
+
+                            // If manufacturing year exists, select it in the dropdown
+                            if (data.manu_year) {
+                                $('#manu_year').val(data.manu_year).trigger('change');
+                            }
+                        }
+                    });
+                } else {
+                    // Clear all fields if no customer is selected
+                    $('#email').val('');
+                    $('#phone').val('');
+                    $('#car_model').val('');
+                    $('#car_plat_no').val('');
+                    $('#chassis_no').val('');
+                    $('#car_manufacture_id').val('').trigger('change');
+                    $('#manu_year').val('').trigger('change');
+                }
+            });
+
             // Load subcategories when category changes
             $(document).on('change', '.category_id', function() {
                 var category_id = $(this).val();
@@ -406,7 +490,26 @@
                     type: "GET",
                     success: function(response) {
                         $('#itemRows').append(response.html);
-                        calculateTotals();
+                        // Wait for DOM to update before calculating
+                        setTimeout(function() {
+                            let subtotal = 0;
+                            $('.total').each(function() {
+                                let val = parseFloat($(this).val()) || 0;
+                                subtotal += val;
+                            });
+
+                            $('#amount').val(subtotal.toFixed(2));
+                            let netAmount = subtotal;
+                            let vatAmount = (netAmount * 5) / 100;
+                            let totalPayable = netAmount + vatAmount;
+
+                            $('#net_amount').val(netAmount.toFixed(2));
+                            $('#vat_amount').val(vatAmount.toFixed(2));
+                            $('#total_payable').val(totalPayable.toFixed(2));
+
+                            // Now run the full calculation
+                            calculateTotals();
+                        }, 100);
                     },
                     error: function() {
                         alert('Failed to add new row.');
@@ -419,37 +522,125 @@
                 var allRows = $('.item-row');
                 if (allRows.length > 1) {
                     $(this).closest('.item-row').remove();
-                    calculateTotals();
+                    // Wait for DOM to update before calculating
+                    setTimeout(function() {
+                        let subtotal = 0;
+                        $('.total').each(function() {
+                            let val = parseFloat($(this).val()) || 0;
+                            subtotal += val;
+                        });
+
+                        $('#amount').val(subtotal.toFixed(2));
+                        let netAmount = subtotal;
+                        let vatAmount = (netAmount * 5) / 100;
+                        let totalPayable = netAmount + vatAmount;
+
+                        $('#net_amount').val(netAmount.toFixed(2));
+                        $('#vat_amount').val(vatAmount.toFixed(2));
+                        $('#total_payable').val(totalPayable.toFixed(2));
+
+                        // Now run the full calculation
+                        calculateTotals();
+                    }, 100);
                 } else {
                     alert('You must have at least one item row.');
                 }
             });
 
-            // Global Total Calculation Function
+            // ---------------------------
+            // Calculation Logic
+            // ---------------------------
+            let netEdited = false;
+            let lastDiscountPercent = {{ $jobCard->discount_percent ?? 0 }}; // Initialize with saved value
+
+            // Main Calculation
             function calculateTotals() {
-                let amount = 0;
+                let subtotal = 0;
 
                 $('.total').each(function() {
                     let val = parseFloat($(this).val()) || 0;
-                    amount += val;
+                    subtotal += val;
                 });
 
-                $('#amount').val(amount.toFixed(2));
+                $('#amount').val(subtotal.toFixed(2));
 
-                let vatPercent = parseFloat($('#vat').val()) || 0;
-                let discountPercent = parseFloat($('#discount').val()) || 0;
+                let netAmount = parseFloat($('#net_amount').val()) || 0;
 
-                let vatValue = (amount * vatPercent) / 100;
-                let discountValue = (amount * discountPercent) / 100;
+                // 🧠 Case 1: If user never edited → keep net = subtotal
+                if (!netEdited) {
+                    netAmount = subtotal;
+                    $('#net_amount').val(netAmount.toFixed(2));
+                    lastDiscountPercent = 0;
+                }
+                // 🧠 Case 2: If subtotal changes & user edited before → maintain same discount %
+                else if (subtotal > 0 && lastDiscountPercent > 0) {
+                    let discountAmount = (subtotal * lastDiscountPercent) / 100;
+                    netAmount = subtotal - discountAmount;
+                    $('#net_amount').val(netAmount.toFixed(2));
+                }
 
-                let netAmount = amount + vatValue - discountValue;
+                // 🧮 Recalculate dependent fields
+                let discountAmount = subtotal - netAmount;
+                let discountPercent = subtotal > 0 ? (discountAmount / subtotal) * 100 : 0;
+                let vatAmount = (netAmount * 5) / 100;
+                let totalPayable = netAmount + vatAmount;
 
-                $('#net_amount').val(netAmount.toFixed(2));
+                // Update all UI fields
+                $('#discount_amount').val(discountAmount.toFixed(2));
+                $('#discount_percent').val(discountPercent.toFixed(2));
+                $('#vat_amount').val(vatAmount.toFixed(2));
+                $('#total_payable').val(totalPayable.toFixed(2));
+
+                // Remember last known % (for dynamic updates)
+                lastDiscountPercent = discountPercent;
             }
 
-            // Recalculate when VAT or discount changes
-            $(document).on('input', '#vat, #discount', function() {
+            // 🧩 User manually edits Net Amount
+            $(document).on('input', '#net_amount', function() {
+                netEdited = true;
+
+                let subtotal = parseFloat($('#amount').val()) || 0;
+                let netAmount = parseFloat($(this).val()) || 0;
+                let discountAmount = subtotal - netAmount;
+                let discountPercent = subtotal > 0 ? (discountAmount / subtotal) * 100 : 0;
+                let vatAmount = (netAmount * 5) / 100;
+                let totalPayable = netAmount + vatAmount;
+
+                $('#discount_amount').val(discountAmount.toFixed(2));
+                $('#discount_percent').val(discountPercent.toFixed(2));
+                $('#vat_amount').val(vatAmount.toFixed(2));
+                $('#total_payable').val(totalPayable.toFixed(2));
+
+                lastDiscountPercent = discountPercent;
+            });
+
+            // 🧩 User edits Discount %
+            $(document).on('input', '#discount_percent', function() {
+                netEdited = true;
+
+                let subtotal = parseFloat($('#amount').val()) || 0;
+                let discountPercent = parseFloat($(this).val()) || 0;
+                let discountAmount = (subtotal * discountPercent) / 100;
+                let netAmount = subtotal - discountAmount;
+                let vatAmount = (netAmount * 5) / 100;
+                let totalPayable = netAmount + vatAmount;
+
+                $('#discount_amount').val(discountAmount.toFixed(2));
+                $('#net_amount').val(netAmount.toFixed(2));
+                $('#vat_amount').val(vatAmount.toFixed(2));
+                $('#total_payable').val(totalPayable.toFixed(2));
+
+                lastDiscountPercent = discountPercent;
+            });
+
+            // 🧩 Whenever products or qty change → recalc with preserved discount ratio
+            $(document).on('input change', '.qty, .price, .total', function() {
                 calculateTotals();
+            });
+
+            // 🧩 When rows added or removed
+            $(document).on('click', '.addRow, .removeRow', function() {
+                setTimeout(calculateTotals, 150);
             });
 
         });

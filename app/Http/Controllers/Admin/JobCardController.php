@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\JobCard;
 use App\Models\Categories;
+use App\Models\Customer;
 use App\Models\JobCardItem;
 use App\Models\SalesPerson;
 use Illuminate\Http\Request;
@@ -19,12 +20,34 @@ class JobCardController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $jobCards = JobCard::with(['salesPerson', 'items']) // ✅ Load related models
-                ->select(['id', 'job_card_no', 'name', 'sale_person_id', 'date'])
+            $jobCards = JobCard::with(['salesPerson', 'items', 'customer'])
+                ->select(['id', 'job_card_no', 'customer_id', 'sale_person_id', 'date', 'amount', 'total_payable'])
                 ->latest();
 
             return DataTables::of($jobCards)
+                ->filter(function ($query) use ($request) {
+                    if ($request->search['value']) {
+                        $searchValue = $request->search['value'];
+                        $query->where(function($q) use ($searchValue) {
+                            // Search in job_card_no
+                            $q->where('job_card_no', 'like', "%{$searchValue}%")
+                            // Search in customer name
+                            ->orWhereHas('customer', function($q) use ($searchValue) {
+                                $q->where('name', 'like', "%{$searchValue}%");
+                            })
+                            // Search in sales person name
+                            ->orWhereHas('salesPerson', function($q) use ($searchValue) {
+                                $q->where('name', 'like', "%{$searchValue}%");
+                            });
+                        });
+                    }
+                })
                 ->addIndexColumn()
+
+                // ✅ Customer Name
+                ->addColumn('name', function ($row) {
+                    return $row->customer ? $row->customer->name : '-';
+                })
 
                 // ✅ Sales Person Name
                 ->addColumn('sale_person_id', function ($row) {
@@ -33,18 +56,13 @@ class JobCardController extends Controller
 
                 // ✅ Sub Total Calculation
                 ->addColumn('sub_total', function ($row) {
-                    return number_format($row->items->sum(function ($item) {
-                        return $item->price * $item->qty;
-                    }), 2);
-                })
+                return number_format($row->amount ?? 0, 2);
+            })
 
-                // ✅ Total (you can later add VAT or discount logic)
-                ->addColumn('total', function ($row) {
-                    $total = $row->items->sum(function ($item) {
-                        return $item->price * $item->qty;
-                    });
-                    return number_format($total, 2);
-                })
+            // ✅ Total Payable (from JobCard table -> net_amount)
+            ->addColumn('total', function ($row) {
+                return number_format($row->total_payable ?? 0, 2);
+            })
 
                 // ✅ Action Buttons
                 ->addColumn('action', function ($row) {
@@ -91,7 +109,8 @@ class JobCardController extends Controller
                 ->make(true);
         }
 
-        return view('pages.job-card.index');
+        $salePersons = SalesPerson::pluck('name', 'id');
+        return view('pages.job-card.index', compact('salePersons'));
     }
 
     /**
@@ -111,7 +130,8 @@ class JobCardController extends Controller
         $carMenus = CarManufactures::pluck('name', 'id');
         $salePersons = SalesPerson::pluck('name', 'id');
         $categories = Categories::pluck('name', 'id');
-        return view('pages.job-card.create', compact('carMenus', 'salePersons', 'categories', 'jobCardNo'));
+        $customers = Customer::where('status', 'active')->pluck('name', 'id');
+        return view('pages.job-card.create', compact('carMenus', 'salePersons', 'categories', 'jobCardNo', 'customers'));
     }
 
     /**
@@ -122,18 +142,19 @@ class JobCardController extends Controller
         $request->validate([
             'job_card_no' => 'required',
             'date' => 'required|date',
-            'name' => 'required',
-            'phone' => 'required',
+            'customer_id' => 'required',
             'car_manufacture_id' => 'required',
         ]);
 
         // Step 1️⃣: Create main JobCard record
+        // Get customer details
+        $customer = Customer::findOrFail($request->customer_id);
         $jobCard = JobCard::create([
             'job_card_no' => $request->job_card_no,
             'date' => $request->date,
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
+            'customer_id' => $request->customer_id,
+            'email' => $customer->email,
+            'phone' => $customer->phone,
             'car_model' => $request->car_model,
             'car_plat_no' => $request->car_plat_no,
             'chassis_no' => $request->chassis_no,
@@ -145,9 +166,11 @@ class JobCardController extends Controller
             'remarks' => $request->remarks,
             'promo' => $request->promo,
             'amount' => $request->amount,
-            'vat' => $request->vat,
-            'discount' => $request->discount,
             'net_amount' => $request->net_amount,
+            'vat_amount' => $request->vat_amount,
+            'discount_amount' => $request->discount_amount,
+            'discount_percent' => $request->discount_percent,
+            'total_payable' => $request->total_payable,
         ]);
 
         // Step 2️⃣: Insert multiple JobCardItems
@@ -194,7 +217,8 @@ class JobCardController extends Controller
         $carMenus = CarManufactures::pluck('name', 'id');
         $salePersons = SalesPerson::pluck('name', 'id');
         $categories = Categories::pluck('name', 'id');
-        return view('pages.job-card.edit', compact('jobCardItems', 'carMenus', 'salePersons', 'categories', 'jobCard'));
+        $customers = Customer::where('status', 'active')->pluck('name', 'id');
+        return view('pages.job-card.edit', compact('jobCardItems', 'carMenus', 'salePersons', 'categories', 'jobCard', 'customers'));
     }
 
     /**
@@ -205,17 +229,20 @@ class JobCardController extends Controller
         $request->validate([
             'job_card_no' => 'required',
             'date' => 'required|date',
-            'name' => 'required',
+            'customer_id' => 'required',
             'phone' => 'required',
             'car_manufacture_id' => 'required',
         ]);
         $jobCard = JobCard::findOrFail($id);
+        // Get customer details
+        $customer = Customer::findOrFail($request->customer_id);
+
         $jobCard->update([
             'job_card_no' => $request->job_card_no,
             'date' => $request->date,
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
+            'customer_id' => $request->customer_id,
+            'email' => $customer->email,
+            'phone' => $customer->phone,
             'car_model' => $request->car_model,
             'car_plat_no' => $request->car_plat_no,
             'chassis_no' => $request->chassis_no,
@@ -227,9 +254,11 @@ class JobCardController extends Controller
             'remarks' => $request->remarks,
             'promo' => $request->promo,
             'amount' => $request->amount,
-            'vat' => $request->vat,
-            'discount' => $request->discount,
             'net_amount' => $request->net_amount,
+            'vat_amount' => $request->vat_amount,
+            'discount_amount' => $request->discount_amount,
+            'discount_percent' => $request->discount_percent,
+            'total_payable' => $request->total_payable,
         ]);
         JobCardItem::where('job_card_id', $jobCard->id)->delete();
         if ($request->has('category_id')) {

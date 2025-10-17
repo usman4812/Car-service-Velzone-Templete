@@ -12,7 +12,7 @@ class Worker extends Model
 
     protected $fillable = [
         'name',
-        'desigination',
+        'designation',
         'image',
         'date',
         'status',

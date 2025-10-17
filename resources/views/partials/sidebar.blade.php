@@ -78,18 +78,9 @@
             <ul class="navbar-nav" id="navbar-nav">
                 <li class="menu-title"><span data-key="t-menu">Menu</span></li>
                 <li class="nav-item">
-                    <a class="nav-link menu-link" href="#sidebarDashboards" data-bs-toggle="collapse" role="button"
-                        aria-expanded="false" aria-controls="sidebarDashboards">
-                        <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards">Dashboards</span>
+                    <a class="nav-link menu-link" href="{{ route('admin.dashboard') }}">
+                        <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards">Dashboard</span>
                     </a>
-                    <div class="collapse menu-dropdown" id="sidebarDashboards">
-                        <ul class="nav nav-sm flex-column">
-                            <li class="nav-item">
-                                <a href="" class="nav-link" data-key="t-analytics"> Analytics
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
                 </li> <!-- end Dashboard Menu -->
                 {{-- <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebarApps" data-bs-toggle="collapse" role="button"
@@ -110,37 +101,20 @@
                 </li> --}}
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('job-card.index') }}">
-                        <i class="ri-apps-2-line"></i> <span data-key="t-widgets">Job Card</span>
+                        <i class="ri-file-list-3-line"></i> <span data-key="t-widgets">Job Card</span>
                     </a>
                 </li>
 
-                {{-- <li class="nav-item">
-                     <a class="nav-link menu-link" href="#sidebarLayouts" data-bs-toggle="collapse" role="button"
-                         aria-expanded="false" aria-controls="sidebarLayouts">
-                         <i class="ri-layout-3-line"></i> <span data-key="t-layouts">Customers</span>
-                     </a>
-                     <div class="collapse menu-dropdown" id="sidebarLayouts">
-                         <ul class="nav nav-sm flex-column">
-                             <li class="nav-item">
-                                 <a href="{{ route('customers.index')}}" target="_blank" class="nav-link"
-                                     data-key="t-horizontal">List</a>
-                             </li>
-                             <li class="nav-item">
-                                 <a href="{{ route('customers.create')}}" target="_blank" class="nav-link"
-                                     data-key="t-detached">Create</a>
-                             </li>
-                         </ul>
-                     </div>
-                 </li> <!-- end Dashboard Menu --> --}}
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('customers.index') }}">
-                        <i class="ri-honour-line"></i> <span data-key="t-widgets">Customers</span>
+                        <i class="ri-user-2-line"></i> <span data-key="t-widgets">Customers</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebarPages" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="sidebarPages">
-                        <i class="ri-pages-line"></i> <span data-key="t-pages">Categories</span>
+                        <i class="ri-folder-2-line"></i> <span data-key="t-pages">Categories</span>
                     </a>
                     <div class="collapse menu-dropdown" id="sidebarPages">
                         <ul class="nav nav-sm flex-column">
@@ -148,7 +122,6 @@
                                 <a href="{{ route('categories.index') }}" class="nav-link"
                                     data-key="t-starter">Categories</a>
                             </li>
-
                             <li class="nav-item">
                                 <a href="{{ route('sub-categories.index') }}" class="nav-link" data-key="t-team">Sub
                                     Categories</a>
@@ -157,96 +130,75 @@
                     </div>
                 </li>
 
-
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('sales-persons.index') }}">
-                        <i class="ri-honour-line"></i> <span data-key="t-widgets">Sales Persons</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="{{ route('car-manufactures.index') }}">
-                        <i class="ri-honour-line"></i> <span data-key="t-widgets">Car Manufactures</span>
+                        <i class="ri-team-line"></i> <span data-key="t-widgets">Sales Persons</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link menu-link" href="">
-                        <i class="ri-honour-line"></i> <span data-key="t-widgets">Blog</span>
+                    <a class="nav-link menu-link" href="{{ route('car-manufactures.index') }}">
+                        <i class="ri-car-line"></i> <span data-key="t-widgets">Car Manufactures</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="{{ route('blog.index') }}">
+                        <i class="ri-article-line"></i> <span data-key="t-widgets">Blog</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('products.index') }}">
-                        <i class="ri-honour-line"></i> <span data-key="t-widgets">Products</span>
+                        <i class="ri-store-2-line"></i> <span data-key="t-widgets">Products</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="">
-                        <i class="ri-honour-line"></i> <span data-key="t-widgets">Report</span>
+                        <i class="ri-bar-chart-2-line"></i> <span data-key="t-widgets">Report</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="">
-                        <i class="ri-honour-line"></i> <span data-key="t-widgets">Replacement</span>
+                        <i class="ri-repeat-line"></i> <span data-key="t-widgets">Replacement</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="">
-                        <i class="ri-honour-line"></i> <span data-key="t-widgets">Contacts</span>
+                        <i class="ri-contacts-book-line"></i> <span data-key="t-widgets">Contacts</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="{{ route('services.index') }}">
+                        <i class="ri-customer-service-2-line"></i> <span data-key="t-widgets">Services</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="{{ route('workers.index') }}">
+                        <i class="ri-user-settings-line"></i> <span data-key="t-widgets">Workers</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="{{ route('works.index') }}">
+                        <i class="ri-tools-line"></i> <span data-key="t-widgets">Work</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="">
-                        <i class="ri-honour-line"></i> <span data-key="t-widgets">Services</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="">
-                        <i class="ri-honour-line"></i> <span data-key="t-widgets">Workers</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="">
-                        <i class="ri-honour-line"></i> <span data-key="t-widgets">Work</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="">
-                        <i class="ri-honour-line"></i> <span data-key="t-widgets">Making Quotation</span>
+                        <i class="ri-file-text-line"></i> <span data-key="t-widgets">Making Quotation</span>
                     </a>
                 </li>
 
 
 
-                {{-- <li class="nav-item">
-                     <a class="nav-link menu-link" href="#sidebarTables" data-bs-toggle="collapse"
-                         role="button" aria-expanded="false" aria-controls="sidebarTables">
-                         <i class="ri-layout-grid-line"></i> <span data-key="t-tables">Tables</span>
-                     </a>
-                     <div class="collapse menu-dropdown" id="sidebarTables">
-                         <ul class="nav nav-sm flex-column">
-                             <li class="nav-item">
-                                 <a href="tables-basic.html" class="nav-link" data-key="t-basic-tables">Basic
-                                     Tables</a>
-                             </li>
-                             <li class="nav-item">
-                                 <a href="tables-gridjs.html" class="nav-link" data-key="t-grid-js">Grid Js</a>
-                             </li>
-                             <li class="nav-item">
-                                 <a href="tables-listjs.html" class="nav-link" data-key="t-list-js">List Js</a>
-                             </li>
-                             <li class="nav-item">
-                                 <a href="tables-datatables.html" class="nav-link"
-                                     data-key="t-datatables">Datatables</a>
-                             </li>
-                         </ul>
-                     </div>
-                 </li> --}}
+
 
                 {{-- <li class="nav-item">
                      <a class="nav-link menu-link" href="#sidebarCharts" data-bs-toggle="collapse"
