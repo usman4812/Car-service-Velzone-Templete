@@ -21,6 +21,16 @@ class BlogController extends Controller
                     $imagePath = asset('storage/blog/' . ($row->image ?? 'avatar.png'));
                     return '<img src="' . $imagePath . '" alt="Blog" width="110" height="80" class="img-thumbnail" />';
                 })
+                ->editColumn('description', function ($row) {
+                    // Remove HTML tags
+                    $text = strip_tags($row->description);
+                    // Split into words
+                    $words = explode(' ', $text);
+                    // Get first 6 words
+                    $words = array_slice($words, 0, 6);
+                    // Join words and add ellipsis
+                    return implode(' ', $words) . '...';
+                })
                 ->addColumn('status', function ($row) {
                     return $row->status === 'active'
                         ? '<span class="badge bg-success">Active</span>'
