@@ -3,23 +3,20 @@
 
 @section('content')
     <div class="container-fluid py-4">
-        <div class="text-end mb-3">
-            <button onclick="window.print()" class="btn btn-success btn-sm">
-                <i class="ri-printer-line align-middle me-1"></i> Print Job Card
-            </button>
-        </div>
-
         <div class="card shadow-sm border-0">
             <div class="card-body p-4">
 
                 <!-- Header Image -->
-                <div class="text-center mb-4">
-                    <img src="{{ asset('assets/images/invoice-banner.png') }}" alt="Banner" class="img-fluid w-100"
+                <div class="text-center">
+                    <img src="{{ asset('assets/images/invoice-banner-new.png') }}" alt="Banner" class="img-fluid w-100"
                         style="max-height:180px;object-fit:cover;">
                 </div>
 
-                <!-- Title -->
-                <h4 class="text-center fw-bold mb-4" style="letter-spacing: 1px;">Job Card</h4>
+                <!-- Title with Print Button -->
+                <div style="margin-top: 20px; text-align:center; position:relative;">
+                    <h4 class="fw-bold mb-4" style="letter-spacing: 1px;">Job Card</h4>
+                    <button class="print-btn" onclick="window.print()">Print</button>
+                </div>
 
                 <!-- Job Info Lines -->
                 <div class="job-lines" style="font-size: 16px; line-height: 2;">
@@ -93,7 +90,7 @@
                 <div class="text-center mb-4">
                     <b>Price Charged Details :</b>
                     <span class="dots" style="width:300px;">
-                        {{ number_format($jobCard->net_amount, 2) }}
+                        {{ number_format($jobCard->total_payable, 2) }}
                     </span>
                     &nbsp; AED
                 </div>
@@ -130,19 +127,134 @@
             margin-bottom: 10px;
         }
 
+        .print-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            background-color: #0ab39c;
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .print-btn:hover {
+            background-color: #099885;
+        }
+
         @media print {
-            .btn {
-                display: none !important;
+            @page {
+                size: A4;
+                margin: 0;
             }
 
-            .card {
-                border: none;
-                box-shadow: none;
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
-            body {
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: auto !important;
                 background: #fff !important;
-                -webkit-print-color-adjust: exact;
+            }
+
+            /* Hide all non-printable elements */
+            .btn,
+            .print-btn,
+            .navbar-header,
+            #page-topbar,
+            .app-menu,
+            .navbar-menu,
+            .vertical-menu,
+            .left,
+            footer,
+            .footer,
+            .page-title-box,
+            .breadcrumb,
+            header,
+            nav,
+            [class*="sidebar"],
+            [class*="topbar"],
+            [id*="sidebar"],
+            [id*="topbar"] {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                overflow: hidden !important;
+            }
+
+            /* Force main content to be full width */
+            #layout-wrapper,
+            .main-content,
+            .page-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            /* Reset container to full width */
+            .container-fluid {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            /* Reset card to full width with proper padding */
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            /* Card body with proper padding */
+            .card-body {
+                padding: 10mm 15mm !important;
+                margin: 0 !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            /* First element - remove top margin */
+            .card-body > *:first-child {
+                margin-top: 0 !important;
+                padding-top: 0 !important;
+            }
+
+            /* Remove margin from header image container */
+            .text-center:first-child {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Ensure images are full width */
+            .text-center img,
+            img {
+                max-width: 100% !important;
+                width: 100% !important;
+                display: block !important;
+                margin: 0 !important;
+            }
+
+            /* Remove extra spacing from title */
+            h4 {
+                margin-top: 10px !important;
+                margin-bottom: 20px !important;
+            }
+
+            /* Adjust job info spacing */
+            .job-lines {
+                margin-top: 15px !important;
             }
         }
     </style>

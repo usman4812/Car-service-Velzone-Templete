@@ -23,24 +23,25 @@
         }
 
         .invoice-header {
-            background: #3a4651;
-            color: white;
-            padding: 10px 0;
             text-align: center;
+            margin-bottom: 0;
         }
 
         .invoice-header img {
-            height: 80px;
+            width: 100%;
+            height: auto;
+            display: block;
         }
 
-        .invoice-header h3 {
-            color: white;
-            margin: 5px 0 0;
+        .invoice-footer {
+            text-align: center;
+            margin-top: 20px;
         }
 
-        .invoice-header p {
-            margin: 0;
-            color: white;
+        .invoice-footer img {
+            width: 100%;
+            height: auto;
+            display: block;
         }
 
         table {
@@ -93,16 +94,32 @@
                 display: none;
             }
 
-            body {
+            @page {
+                size: A4;
                 margin: 0;
+            }
+
+            html, body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
             }
 
             .invoice-container {
                 border: none;
                 box-shadow: none;
                 margin: 0;
+                padding: 15mm 20mm;
                 width: 100%;
-                padding: 0 30px;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            .invoice-header img,
+            .invoice-footer img {
+                width: 100%;
+                max-width: 100%;
             }
         }
     </style>
@@ -111,11 +128,9 @@
 
 <div class="invoice-container">
     <!-- Header -->
-   <div class="invoice-header text-center mb-3">
-    <img src="{{ asset('assets/images/invoice-banner.png') }}"
-         alt="Invoice Header Banner"
-         style="width: 100%; height: auto; object-fit: cover;">
-</div>
+    <div class="invoice-header">
+        <img src="{{ asset('assets/images/invoice-banner-new.png') }}" alt="Invoice Header Banner">
+    </div>
     <!-- Title -->
     <div style="margin-top: 20px; text-align:center;">
         <h3>TAX INVOICE / <span style="font-family:'Arial';">فاتورة ضريبية</span></h3>
@@ -214,33 +229,45 @@
             <td style="width:40%; vertical-align:top;">
                 <table style="width:100%;">
                     <tr>
-                        <td>Subtotal / المجموع الفرعي</td>
+                        <td class="fw-bold">Subtotal (Amount)</td>
+                        <td style="width:50px;">AED</td>
                         <td class="text-end">{{ number_format($jobCard->amount ?? 1300, 2) }}</td>
                     </tr>
                     <tr>
-                        <td>Discount / الخصم</td>
-                        <td class="text-end">{{ number_format($jobCard->discount ?? 800, 2) }}</td>
+                        <td class="fw-bold">Net Amount</td>
+                        <td style="width:50px;">AED</td>
+                        <td class="text-end">{{ number_format($jobCard->net_amount ?? 500, 2) }}</td>
                     </tr>
                     <tr>
-                        <td>VAT / مضافة ({{ $jobCard->vat ?? 5 }}%)</td>
-                        <td class="text-end">{{ number_format(($jobCard->vat ?? 5) / 100 * ($jobCard->net_amount ?? 500), 2) }}</td>
+                        <td class="fw-bold">Discount Amount</td>
+                        <td style="width:50px;">AED</td>
+                        <td class="text-end">{{ number_format($jobCard->discount_amount ?? 0, 2) }}</td>
                     </tr>
                     <tr>
-                        <td class="fw-bold">Net Amount / القيمة الصافية</td>
-                        <td class="fw-bold text-end">AED {{ number_format($jobCard->net_amount ?? 500, 2) }}</td>
+                        <td class="fw-bold">Discount %</td>
+                        <td style="width:50px;">%</td>
+                        <td class="text-end">{{ number_format($jobCard->discount_percent ?? 0, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="padding:5px 0;"><hr style="border:none; border-top:1px solid #ccc; margin:0;"></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">VAT (5%)</td>
+                        <td style="width:50px;">AED</td>
+                        <td class="text-end">{{ number_format($jobCard->vat_amount ?? 0, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Total Payable</td>
+                        <td style="width:50px;">AED</td>
+                        <td class="text-end">{{ number_format($jobCard->total_payable ?? 0, 2) }}</td>
                     </tr>
                 </table>
             </td>
         </tr>
     </table>
-
-    <!-- Footer -->
-    <div class="footer">
-        <p><strong>يُطلب من العملاء تحديد موعد مسبق قبل زيارة الفرع لتقديم أي مطالبة بالضمان</strong></p>
-        <p style="color:red;"><strong>Note: Customers are advised to schedule an appointment before visiting the branch for any warranty claims.</strong></p>
-        <p>Online generated invoice, doesn't require stamp</p>
-        <hr>
-        <p>email: info@samratauto.com | website: www.samratauto.com | WhatsApp: +971 58 685 1720</p>
+    <!-- Footer Image -->
+    <div class="invoice-footer">
+        <img src="{{ asset('assets/images/invoice-footer.jpg') }}" alt="Invoice Footer">
     </div>
 </div>
 
