@@ -161,7 +161,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link menu-link" href="">
+                    <a class="nav-link menu-link" href="{{ route('replacements.index') }}">
                         <i class="ri-repeat-line"></i> <span data-key="t-widgets">Replacement</span>
                     </a>
                 </li>

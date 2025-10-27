@@ -32,6 +32,8 @@ class JobCard extends Model
         'discount_percent',
         'vat_amount',
         'total_payable',
+        'status',
+        'replacement',
     ];
     public function carManufacture()
     {

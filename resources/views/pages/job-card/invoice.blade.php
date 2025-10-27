@@ -220,9 +220,11 @@
     <table style="margin-top: 20px;">
         <tr>
             <td style="width:60%; vertical-align:top;">
-                <p><strong>Account Title:</strong> Samrat Auto Accessories Fixing</p>
-                <p><strong>Account No:</strong> 94528773494 (WIO BANK PJSC)</p>
-                <p><strong>TRN (VAT):</strong> 104207872300003</p>
+                <p><strong>Account Title:</strong>SAMRAT AUTO ACCESSORIES FITTING LLC
+                    DUBAI, UNITED ARAB EMIRATES
+                    </p>
+                <p><strong>Account No:</strong>14353261920001</p>
+                <p><strong>TRN (VAT):</strong>104207872300003</p>
                 <p>Five hundred only / خمسة مائة</p>
                 <p><strong>Remarks:</strong> {{ $jobCard->remarks ?? '' }}</p>
             </td>

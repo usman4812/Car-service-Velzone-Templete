@@ -79,6 +79,7 @@ class JobCardController extends Controller
                 // ✅ Action Buttons
                 ->addColumn('action', function ($row) {
                     $editUrl = route('job-card.edit', $row->id);
+                    $replacementUrl = route('job-card.replacement', $row->id);
                     $deleteUrl = route('job-card.destroy', $row->id);
                     $invoiceUrl = route('job-card.invoice', $row->id);
                     $jobCardUrl = route('job-card.show', $row->id);
@@ -93,6 +94,11 @@ class JobCardController extends Controller
                             <li>
                                 <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
                                     <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                                </a>
+                            </li>
+                            <li>
+                                <a href="' . $replacementUrl . '" class="dropdown-item">
+                                    <i class="ri-refresh-line align-bottom me-2 text-muted"></i> Replacement
                                 </a>
                             </li>
                             <li>
@@ -316,5 +322,83 @@ class JobCardController extends Controller
         $jobCardItems = JobCardItem::with('product')->where('job_card_id', $id)->get();
 
         return view('pages.job-card.invoice', compact('jobCard', 'jobCardItems'));
+    }
+
+    /**
+     * Show the replacement form (same as edit).
+     */
+    public function replacement(string $id)
+    {
+        $jobCard = JobCard::find($id);
+        $jobCardItems = JobCardItem::where('job_card_id', $id)->get();
+        $carMenus = CarManufactures::pluck('name', 'id');
+        $salePersons = SalesPerson::pluck('name', 'id');
+        $categories = Categories::pluck('name', 'id');
+        $customers = Customer::where('status', 'active')->pluck('name', 'id');
+        $isReplacement = true; // Flag to indicate this is a replacement
+        return view('pages.job-card.edit', compact('jobCardItems', 'carMenus', 'salePersons', 'categories', 'jobCard', 'customers', 'isReplacement'));
+    }
+
+    /**
+     * Update replacement - sets replacement column to 1.
+     */
+    public function updateReplacement(Request $request, $id)
+    {
+        $request->validate([
+            'job_card_no' => 'required',
+            'date' => 'required|date',
+            'customer_id' => 'required',
+            'phone' => 'required',
+            'car_manufacture_id' => 'required',
+        ]);
+        $jobCard = JobCard::findOrFail($id);
+        // Get customer details
+        $customer = Customer::findOrFail($request->customer_id);
+
+        $jobCard->update([
+            'job_card_no' => $request->job_card_no,
+            'date' => $request->date,
+            'customer_id' => $request->customer_id,
+            'email' => $customer->email,
+            'phone' => $customer->phone,
+            'car_model' => $request->car_model,
+            'car_plat_no' => $request->car_plat_no,
+            'chassis_no' => $request->chassis_no,
+            'car_manufacture_id' => $request->car_manufacture_id,
+            'manu_year' => $request->manu_year,
+            'sale_person_id' => $request->sale_person_id,
+            'full_car' => $request->full_car,
+            'full_car_price' => $request->full_car_price,
+            'remarks' => $request->remarks,
+            'promo' => $request->promo,
+            'amount' => $request->amount,
+            'net_amount' => $request->net_amount,
+            'vat_amount' => $request->vat_amount,
+            'discount_amount' => $request->discount_amount,
+            'discount_percent' => $request->discount_percent,
+            'total_payable' => $request->total_payable,
+            'replacement' => 1, // Set replacement to 1
+        ]);
+        JobCardItem::where('job_card_id', $jobCard->id)->delete();
+        if ($request->has('category_id')) {
+            foreach ($request->category_id as $key => $categoryId) {
+                JobCardItem::create([
+                    'job_card_id' => $jobCard->id,
+                    'category_id' => $categoryId,
+                    'sub_category_id' => $request->sub_category_id[$key] ?? null,
+                    'product_id' => $request->product_id[$key] ?? null,
+                    'qty' => $request->qty[$key] ?? 0,
+                    'price' => $request->price[$key] ?? 0,
+                    'sub_total' => $request->total[$key] ?? 0,
+                    'total' => $request->total[$key] ?? 0,
+                    'amount' => $request->total[$key] ?? 0,
+                    'vat' => 0, // optional
+                    'discount' => 0, // optional
+                    'net_amount' => $request->total[$key] ?? 0,
+                ]);
+            }
+        }
+        return redirect()->route('job-card.index')
+            ->with('success', 'Job Card Replacement Updated Successfully');
     }
 }

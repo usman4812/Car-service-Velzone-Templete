@@ -45,6 +45,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::resource('job-card', JobCardController::class);
+    Route::get('job-card/{id}/replacement', [JobCardController::class, 'replacement'])->name('job-card.replacement');
+    Route::put('job-card/{id}/replacement', [JobCardController::class, 'updateReplacement'])->name('job-card.updateReplacement');
     Route::resource('customers', CustomerController::class);
     Route::resource('categories', CategoriesController::class);
     Route::resource('sub-categories', SubCategoryController::class);
@@ -52,7 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('blog', BlogController::class);
     Route::resource('products', ProductController::class);
     Route::resource('Report', ReportController::class);
-    Route::resource('replacement', ReplacementController::class);
+    Route::resource('replacements', ReplacementController::class);
     Route::resource('contacts', ContactsController::class);
     Route::resource('services', ServiceController::class);
     Route::resource('workers', WorkerController::class);

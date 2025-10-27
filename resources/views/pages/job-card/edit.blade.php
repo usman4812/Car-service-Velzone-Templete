@@ -5,11 +5,11 @@
         <div class="col-xxl-12">
             <div class="card">
                 <div class="card-header align-items-center d-flex">
-                    <h4 class="card-title mb-0 flex-grow-1">Add Job Card</h4>
+                    <h4 class="card-title mb-0 flex-grow-1">{{ isset($isReplacement) && $isReplacement ? 'Job Card Replacement' : 'Edit Job Card' }}</h4>
                 </div><!-- end card header -->
                 <div class="card-body">
                     <div class="live-preview">
-                        <form action="{{ route('job-card.update', $jobCard->id) }}" method="POST"
+                        <form action="{{ isset($isReplacement) && $isReplacement ? route('job-card.updateReplacement', $jobCard->id) : route('job-card.update', $jobCard->id) }}" method="POST"
                             enctype="multipart/form-data">
                             @method('PUT')
                             @csrf
