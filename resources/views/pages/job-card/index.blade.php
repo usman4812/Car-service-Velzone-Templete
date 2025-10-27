@@ -20,6 +20,8 @@
                                 <th>SR No.</th>
                                 <th>InVoice No.</th>
                                 <th>Customer Name</th>
+                                <th>Phone</th>
+                                <th>Car Plate No</th>
                                 <th>Sales Rep</th>
                                 <th>Sub Total</th>
                                 <th>Total</th>
@@ -54,12 +56,22 @@
                     },
                     {
                         data: 'name',
-                        name: 'customer.name', // Search in the customer relationship
+                        name: 'customer.name',
+                        searchable: true
+                    },
+                    {
+                        data: 'phone',
+                        name: 'customer.phone',
+                        searchable: true
+                    },
+                    {
+                        data: 'car_plat_no',
+                        name: 'customer.car_plat_no',
                         searchable: true
                     },
                     {
                         data: 'sale_person_id',
-                        name: 'salesPerson.name', // Search in the salesPerson relationship
+                        name: 'salesPerson.name',
                         searchable: true
                     },
                     {

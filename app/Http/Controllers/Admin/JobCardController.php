@@ -31,9 +31,11 @@ class JobCardController extends Controller
                         $query->where(function($q) use ($searchValue) {
                             // Search in job_card_no
                             $q->where('job_card_no', 'like', "%{$searchValue}%")
-                            // Search in customer name
+                            // Search in customer name, phone, and car_plat_no
                             ->orWhereHas('customer', function($q) use ($searchValue) {
-                                $q->where('name', 'like', "%{$searchValue}%");
+                                $q->where('name', 'like', "%{$searchValue}%")
+                                  ->orWhere('phone', 'like', "%{$searchValue}%")
+                                  ->orWhere('car_plat_no', 'like', "%{$searchValue}%");
                             })
                             // Search in sales person name
                             ->orWhereHas('salesPerson', function($q) use ($searchValue) {
@@ -47,6 +49,16 @@ class JobCardController extends Controller
                 // ✅ Customer Name
                 ->addColumn('name', function ($row) {
                     return $row->customer ? $row->customer->name : '-';
+                })
+
+                // ✅ Customer Phone
+                ->addColumn('phone', function ($row) {
+                    return $row->customer ? $row->customer->phone : '-';
+                })
+
+                // ✅ Car Plate Number
+                ->addColumn('car_plat_no', function ($row) {
+                    return $row->customer ? $row->customer->car_plat_no : '-';
                 })
 
                 // ✅ Sales Person Name
