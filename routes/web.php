@@ -53,7 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('car-manufactures', CarManufacturesController::class);
     Route::resource('blog', BlogController::class);
     Route::resource('products', ProductController::class);
-    Route::resource('Report', ReportController::class);
+    Route::resource('reports', ReportController::class);
     Route::resource('replacements', ReplacementController::class);
     Route::resource('contacts', ContactsController::class);
     Route::resource('services', ServiceController::class);

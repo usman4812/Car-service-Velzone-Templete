@@ -155,7 +155,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link menu-link" href="">
+                    <a class="nav-link menu-link" href="{{route('reports.index') }}">
                         <i class="ri-bar-chart-2-line"></i> <span data-key="t-widgets">Report</span>
                     </a>
                 </li>
@@ -167,7 +167,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link menu-link" href="">
+                    <a class="nav-link menu-link" href="{{ route('contacts.index') }}">
                         <i class="ri-contacts-book-line"></i> <span data-key="t-widgets">Contacts</span>
                     </a>
                 </li>
@@ -190,11 +190,11 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link menu-link" href="">
                         <i class="ri-file-text-line"></i> <span data-key="t-widgets">Making Quotation</span>
                     </a>
-                </li>
+                </li> --}}
 
 
 
