@@ -19,6 +19,8 @@ use App\Http\Controllers\Admin\SalePersonController;
 use App\Http\Controllers\Admin\ReplacementController;
 use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\Admin\CarManufacturesController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\PermissionController;
 
 // Route::get('/', function () {
 //     return view('pages.dashboard');
@@ -35,38 +37,80 @@ Route::post('login', [AuthController::class, 'login'])->name('login.submit');
 // });
 
 Route::middleware('auth')->group(function () {
-    Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::resource('sales-persons', SalePersonController::class);
+    // Dashboard Routes
+    Route::middleware('permission:view-dashboard')->group(function () {
+        Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+        Route::get('manager/dashboard', [DashboardController::class, 'index'])->name('manager.dashboard');
+        Route::get('user/dashboard', [DashboardController::class, 'index'])->name('user.dashboard');
+    });
 
-    // Manager dashboard
-    Route::get('manager/dashboard', [DashboardController::class, 'index'])->name('manager.dashboard');
-
-    // User dashboard
-    Route::get('user/dashboard', [DashboardController::class, 'index'])->name('user.dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::resource('job-card', JobCardController::class);
-    Route::get('job-card/{id}/replacement', [JobCardController::class, 'replacement'])->name('job-card.replacement');
-    Route::put('job-card/{id}/replacement', [JobCardController::class, 'updateReplacement'])->name('job-card.updateReplacement');
-    Route::resource('customers', CustomerController::class);
-    Route::resource('categories', CategoriesController::class);
-    Route::resource('sub-categories', SubCategoryController::class);
-    Route::resource('car-manufactures', CarManufacturesController::class);
-    Route::resource('blog', BlogController::class);
-    Route::resource('products', ProductController::class);
-    Route::resource('reports', ReportController::class);
-    Route::resource('users', UserController::class);
-    Route::resource('replacements', ReplacementController::class);
-    Route::resource('contacts', ContactsController::class);
-    Route::resource('services', ServiceController::class);
-    Route::resource('workers', WorkerController::class);
-    Route::resource('works', WorksController::class);
+    // Job Card Routes
+    Route::middleware('permission:view-job-card')->group(function () {
+        Route::resource('job-card', JobCardController::class);
+        Route::get('job-card/{id}/replacement', [JobCardController::class, 'replacement'])->name('job-card.replacement');
+        Route::put('job-card/{id}/replacement', [JobCardController::class, 'updateReplacement'])->name('job-card.updateReplacement');
+        Route::get('job-card/{id}/invoice', [JobCardController::class, 'showInvoice'])->middleware('permission:view-job-card-invoice')->name('job-card.invoice');
+    });
 
-    // inovice show job card
-    Route::get('job-card/{id}/invoice', [JobCardController::class, 'showInvoice'])
-    ->name('job-card.invoice');
+    // Customer Routes
+    Route::resource('customers', CustomerController::class)->middleware('permission:view-customer');
 
-    // Ajax Route
+    // Category Routes
+    Route::middleware('permission:view-category')->group(function () {
+        Route::resource('categories', CategoriesController::class);
+    });
+
+    // Sub Category Routes
+    Route::middleware('permission:view-sub-category')->group(function () {
+        Route::resource('sub-categories', SubCategoryController::class);
+    });
+
+    // Car Manufacture Routes
+    Route::resource('car-manufactures', CarManufacturesController::class)->middleware('permission:view-car-manufacture');
+
+    // Blog Routes
+    Route::resource('blog', BlogController::class)->middleware('permission:view-blog');
+
+    // Product Routes
+    Route::resource('products', ProductController::class)->middleware('permission:view-product');
+
+    // Report Routes
+    Route::resource('reports', ReportController::class)->middleware('permission:view-report');
+
+    // User Management Routes
+    Route::middleware('permission:view-user')->group(function () {
+        Route::resource('users', UserController::class);
+    });
+
+    Route::middleware('permission:view-role')->group(function () {
+        Route::resource('roles', RoleController::class);
+    });
+
+    Route::middleware('permission:view-permission')->group(function () {
+        Route::resource('permissions', PermissionController::class);
+    });
+
+    // Replacement Routes
+    Route::resource('replacements', ReplacementController::class)->middleware('permission:view-replacement');
+
+    // Contact Routes
+    Route::resource('contacts', ContactsController::class)->middleware('permission:view-contact');
+
+    // Service Routes
+    Route::resource('services', ServiceController::class)->middleware('permission:view-service');
+
+    // Worker Routes
+    Route::resource('workers', WorkerController::class)->middleware('permission:view-worker');
+
+    // Work Routes
+    Route::resource('works', WorksController::class)->middleware('permission:view-work');
+
+    // Sales Person Routes
+    Route::resource('sales-persons', SalePersonController::class)->middleware('permission:view-sales-person');
+
+    // Ajax Routes (these don't need permission checks as they're helper endpoints)
     Route::get('/get-subcategories/{category_id}', [AjaxController::class, 'getSubCategories'])->name('get.subcategories');
     Route::get('/get-products/{subcategory_id}', [AjaxController::class, 'getProducts'])->name('get.products');
     Route::get('/get-product-price/{product_id}', [AjaxController::class, 'getProductPrice'])->name('get.procuct.price');

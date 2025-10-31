@@ -26,9 +26,12 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
-            if (auth()->user()->role === 'admin') {
+            $user = Auth::user();
+            
+            // Use Spatie roles instead of role column
+            if ($user && $user->hasRole('admin')) {
                 return redirect()->route('admin.dashboard');
-            } elseif (auth()->user()->role === 'manager') {
+            } elseif ($user && $user->hasRole('manager')) {
                 return redirect()->route('manager.dashboard');
             } else {
                 return redirect()->route('user.dashboard');

@@ -7,9 +7,11 @@
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0 flex-grow-1">User List</h5>
                     <div>
+                        @if(auth()->user()->hasRole('admin') || auth()->user()->can('create-user'))
                         <a id="addRow" href="{{ route('users.create') }}" class="btn btn-primary">
                             Add User
                         </a>
+                        @endif
                     </div>
                 </div>
                 <div class="card-body">
@@ -20,6 +22,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
+                                <th>Roles</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -42,6 +45,7 @@
                 {data: 'name', name: 'name'},
                 {data: 'email', name: 'email'},
                 {data: 'phone', name: 'phone'},
+                {data: 'roles', name: 'roles'},
                 {data: 'action', name: 'action', orderable: false, searchable: false}
             ],
             order: [[0, 'desc']]

@@ -41,19 +41,30 @@ public function index(Request $request)
             ->addColumn('action', function ($row) {
                 $editUrl = route('products.edit', $row->id);
                 $deleteUrl = route('products.destroy', $row->id);
+                
+                $user = auth()->user();
+                $canEdit = $user && ($user->hasRole('admin') || $user->can('edit-product'));
+                $canDelete = $user && ($user->hasRole('admin') || $user->can('delete-product'));
 
-                return '
+                $html = '
                 <div class="dropdown d-inline-block">
                     <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="ri-more-fill align-middle"></i>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
+                    <ul class="dropdown-menu dropdown-menu-end">';
+                
+                if ($canEdit) {
+                    $html .= '
                         <li>
                             <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
                                 <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
                             </a>
-                        </li>
+                        </li>';
+                }
+                
+                if ($canDelete) {
+                    $html .= '
                         <li>
                             <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
                                 ' . csrf_field() . method_field('DELETE') . '
@@ -61,10 +72,18 @@ public function index(Request $request)
                                     <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
                                 </button>
                             </form>
-                        </li>
+                        </li>';
+                }
+                
+                if (!$canEdit && !$canDelete) {
+                    $html .= '<li><span class="dropdown-item text-muted">No actions available</span></li>';
+                }
+                
+                $html .= '
                     </ul>
-                </div>
-                ';
+                </div>';
+                
+                return $html;
             })
             ->rawColumns(['image', 'status', 'action'])
             ->make(true);

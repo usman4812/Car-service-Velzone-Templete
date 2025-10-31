@@ -77,11 +77,18 @@
             </div>
             <ul class="navbar-nav" id="navbar-nav">
                 <li class="menu-title"><span data-key="t-menu">Menu</span></li>
+                
+                {{-- Dashboard --}}
+                @if(userCanAccessRoute('admin.dashboard') || userCanAccessRoute('manager.dashboard') || userCanAccessRoute('user.dashboard'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('admin.dashboard') }}">
                         <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards">Dashboard</span>
                     </a>
                 </li> <!-- end Dashboard Menu -->
+                @endif
+
+                {{-- Users Management --}}
+                @if(userCanAccessAny(['view-user', 'view-role', 'view-permission']))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebarApps" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="sidebarApps">
@@ -89,28 +96,46 @@
                     </a>
                     <div class="collapse menu-dropdown" id="sidebarApps">
                         <ul class="nav nav-sm flex-column">
-
+                            @if(userCanAccessRoute('users.index'))
                             <li class="nav-item">
                                 <a href="{{ route('users.index') }}" class="nav-link" data-key="t-chat">Users</a>
                             </li>
+                            @endif
+                            @if(userCanAccessRoute('roles.index'))
                             <li class="nav-item">
-                                <a href="" class="nav-link" data-key="t-chat">Roles & Permissions</a>
+                                <a href="{{ route('roles.index') }}" class="nav-link" data-key="t-chat">Roles</a>
                             </li>
+                            @endif
+                            @if(userCanAccessRoute('permissions.index'))
+                            <li class="nav-item">
+                                <a href="{{ route('permissions.index') }}" class="nav-link" data-key="t-chat">Permissions</a>
+                            </li>
+                            @endif
                         </ul>
                     </div>
                 </li>
+                @endif
+
+                {{-- Job Card --}}
+                @if(userCanAccessRoute('job-card.index'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('job-card.index') }}">
                         <i class="ri-file-list-3-line"></i> <span data-key="t-widgets">Job Card</span>
                     </a>
                 </li>
+                @endif
 
+                {{-- Customers --}}
+                @if(userCanAccessRoute('customers.index'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('customers.index') }}">
                         <i class="ri-user-2-line"></i> <span data-key="t-widgets">Customers</span>
                     </a>
                 </li>
+                @endif
 
+                {{-- Categories --}}
+                @if(userCanAccessAny(['view-category', 'view-sub-category']))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebarPages" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="sidebarPages">
@@ -118,77 +143,112 @@
                     </a>
                     <div class="collapse menu-dropdown" id="sidebarPages">
                         <ul class="nav nav-sm flex-column">
+                            @if(userCanAccessRoute('categories.index'))
                             <li class="nav-item">
                                 <a href="{{ route('categories.index') }}" class="nav-link"
                                     data-key="t-starter">Categories</a>
                             </li>
+                            @endif
+                            @if(userCanAccessRoute('sub-categories.index'))
                             <li class="nav-item">
                                 <a href="{{ route('sub-categories.index') }}" class="nav-link" data-key="t-team">Sub
                                     Categories</a>
                             </li>
+                            @endif
                         </ul>
                     </div>
                 </li>
+                @endif
 
+                {{-- Sales Persons --}}
+                @if(userCanAccessRoute('sales-persons.index'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('sales-persons.index') }}">
                         <i class="ri-team-line"></i> <span data-key="t-widgets">Sales Persons</span>
                     </a>
                 </li>
+                @endif
 
+                {{-- Car Manufactures --}}
+                @if(userCanAccessRoute('car-manufactures.index'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('car-manufactures.index') }}">
                         <i class="ri-car-line"></i> <span data-key="t-widgets">Car Manufactures</span>
                     </a>
                 </li>
+                @endif
 
+                {{-- Blog --}}
+                @if(userCanAccessRoute('blog.index'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('blog.index') }}">
                         <i class="ri-article-line"></i> <span data-key="t-widgets">Blog</span>
                     </a>
                 </li>
+                @endif
 
+                {{-- Products --}}
+                @if(userCanAccessRoute('products.index'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('products.index') }}">
                         <i class="ri-store-2-line"></i> <span data-key="t-widgets">Products</span>
                     </a>
                 </li>
+                @endif
 
+                {{-- Reports --}}
+                @if(userCanAccessRoute('reports.index'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{route('reports.index') }}">
                         <i class="ri-bar-chart-2-line"></i> <span data-key="t-widgets">Report</span>
                     </a>
                 </li>
+                @endif
 
+                {{-- Replacements --}}
+                @if(userCanAccessRoute('replacements.index'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('replacements.index') }}">
                         <i class="ri-repeat-line"></i> <span data-key="t-widgets">Replacement</span>
                     </a>
                 </li>
+                @endif
 
+                {{-- Contacts --}}
+                @if(userCanAccessRoute('contacts.index'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('contacts.index') }}">
                         <i class="ri-contacts-book-line"></i> <span data-key="t-widgets">Contacts</span>
                     </a>
                 </li>
+                @endif
 
+                {{-- Services --}}
+                @if(userCanAccessRoute('services.index'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('services.index') }}">
                         <i class="ri-customer-service-2-line"></i> <span data-key="t-widgets">Services</span>
                     </a>
                 </li>
+                @endif
 
+                {{-- Workers --}}
+                @if(userCanAccessRoute('workers.index'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('workers.index') }}">
                         <i class="ri-user-settings-line"></i> <span data-key="t-widgets">Workers</span>
                     </a>
                 </li>
+                @endif
 
+                {{-- Works --}}
+                @if(userCanAccessRoute('works.index'))
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('works.index') }}">
                         <i class="ri-tools-line"></i> <span data-key="t-widgets">Work</span>
                     </a>
                 </li>
+                @endif
 
                 {{-- <li class="nav-item">
                     <a class="nav-link menu-link" href="">

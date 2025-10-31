@@ -31,6 +31,18 @@
                             <input type="password" name="password" class="form-control @error('password') is-invalid @enderror">
                             @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Roles</label>
+                            <select name="roles[]" multiple class="form-select @error('roles') is-invalid @enderror">
+                                @foreach($roles as $role)
+                                    <option value="{{ $role->id }}" {{ $user->roles->contains($role->id) ? 'selected' : '' }}>
+                                        {{ ucfirst($role->name) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('roles')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <small class="text-muted">Hold Ctrl/Cmd to select multiple roles</small>
+                        </div>
                         <div class="col-lg-12">
                             <div class="d-flex justify-content-between align-items-center">
                                 <a href="{{ route('users.index') }}" class="btn btn-danger waves-effect">
