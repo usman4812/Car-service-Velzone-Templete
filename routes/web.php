@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\WorksController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\WorkerController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\JobCardController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ServiceController;
@@ -54,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('blog', BlogController::class);
     Route::resource('products', ProductController::class);
     Route::resource('reports', ReportController::class);
+    Route::resource('users', UserController::class);
     Route::resource('replacements', ReplacementController::class);
     Route::resource('contacts', ContactsController::class);
     Route::resource('services', ServiceController::class);

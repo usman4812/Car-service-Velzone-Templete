@@ -82,23 +82,23 @@
                         <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards">Dashboard</span>
                     </a>
                 </li> <!-- end Dashboard Menu -->
-                {{-- <li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebarApps" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="sidebarApps">
-                        <i class="ri-apps-2-line"></i> <span data-key="t-apps">Job Card</span>
+                        <i class="ri-apps-2-line"></i> <span data-key="t-apps">Users Management</span>
                     </a>
                     <div class="collapse menu-dropdown" id="sidebarApps">
                         <ul class="nav nav-sm flex-column">
 
                             <li class="nav-item">
-                                <a href="" class="nav-link" data-key="t-chat">List </a>
+                                <a href="{{ route('users.index') }}" class="nav-link" data-key="t-chat">Users</a>
                             </li>
                             <li class="nav-item">
-                                <a href="" class="nav-link" data-key="t-chat"> Create </a>
+                                <a href="" class="nav-link" data-key="t-chat">Roles & Permissions</a>
                             </li>
                         </ul>
                     </div>
-                </li> --}}
+                </li>
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('job-card.index') }}">
                         <i class="ri-file-list-3-line"></i> <span data-key="t-widgets">Job Card</span>
