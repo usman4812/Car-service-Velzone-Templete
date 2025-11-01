@@ -1,13 +1,14 @@
 <?php
 
-use App\Http\Controllers\Admin\AjaxController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AjaxController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BlogController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WorksController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\WorkerController;
-use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\JobCardController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ServiceController;
@@ -15,12 +16,12 @@ use App\Http\Controllers\Admin\ContactsController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoriesController;
+use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\SalePersonController;
 use App\Http\Controllers\Admin\ReplacementController;
 use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\Admin\CarManufacturesController;
-use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\MakingQuotationController;
 
 // Route::get('/', function () {
 //     return view('pages.dashboard');
@@ -109,6 +110,8 @@ Route::middleware('auth')->group(function () {
 
     // Sales Person Routes
     Route::resource('sales-persons', SalePersonController::class)->middleware('permission:view-sales-person');
+    // Making Quotation Routes
+    Route::resource('making-quotation', MakingQuotationController::class)->middleware('permission:view-making-quotation');
 
     // Ajax Routes (these don't need permission checks as they're helper endpoints)
     Route::get('/get-subcategories/{category_id}', [AjaxController::class, 'getSubCategories'])->name('get.subcategories');

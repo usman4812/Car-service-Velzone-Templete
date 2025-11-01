@@ -231,6 +231,13 @@
                     </a>
                 </li>
                 @endif
+                @if(userCanAccessRoute('making-quotation.index'))
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="{{ route('making-quotation.index') }}">
+                        <i class="ri-file-text-line"></i> <span data-key="t-widgets">Making Quotation</span>
+                    </a>
+                </li> 
+                @endif
 
                 {{-- Workers --}}
                 @if(userCanAccessRoute('workers.index'))
@@ -250,11 +257,8 @@
                 </li>
                 @endif
 
-                {{-- <li class="nav-item">
-                    <a class="nav-link menu-link" href="">
-                        <i class="ri-file-text-line"></i> <span data-key="t-widgets">Making Quotation</span>
-                    </a>
-                </li> --}}
+                {{-- Making Quotation --}}
+                
 
 
 

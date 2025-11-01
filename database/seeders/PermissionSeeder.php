@@ -116,6 +116,12 @@ class PermissionSeeder extends Seeder
             'view-permission',
             'assign-role',
             'assign-permission',
+
+            // Making Quotation
+            'view-making-quotation',
+            'create-making-quotation',
+            'edit-making-quotation',
+            'delete-making-quotation',
         ];
 
         // Create permissions

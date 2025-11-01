@@ -273,8 +273,8 @@
                                                 <tr>
                                                     <th>Net Amount</th>
                                                     <td class="text-end">AED</td>
-                                                    <td><input type="number" id="net_amount" name="net_amount"
-                                                            class="form-control text-end" value="{{ $jobCard->net_amount }}"></td>
+                                                    <td><input type="number" id="net_amount" name="net_amount" step="0.01"
+                                                            class="form-control text-end" value="{{ $jobCard->net_amount }}" min="0"></td>
                                                 </tr>
 
                                                 <tr>
@@ -287,8 +287,8 @@
                                                 <tr>
                                                     <th>Discount %</th>
                                                     <td class="text-end">%</td>
-                                                    <td><input type="number" id="discount_percent" name="discount_percent"
-                                                            class="form-control text-end" value="{{ $jobCard->discount_percent }}"></td>
+                                                    <td><input type="number" id="discount_percent" name="discount_percent" step="0.01"
+                                                            class="form-control text-end" value="{{ $jobCard->discount_percent }}" min="0" max="100"></td>
                                                 </tr>
 
                                                 <tr>

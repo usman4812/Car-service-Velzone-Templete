@@ -181,6 +181,15 @@ function getPermissionForRoute($routeName)
         'permissions.update' => 'view-permission',
         'permissions.destroy' => 'view-permission',
         'permissions.show' => 'view-permission',
+        
+        // Making Quotation
+        'making-quotation.index' => 'view-making-quotation',
+        'making-quotation.create' => 'create-making-quotation',
+        'making-quotation.store' => 'create-making-quotation',
+        'making-quotation.edit' => 'edit-making-quotation',
+        'making-quotation.update' => 'edit-making-quotation',
+        'making-quotation.destroy' => 'delete-making-quotation',
+        'making-quotation.show' => 'view-making-quotation',
     ];
     
     return $routePermissionMap[$routeName] ?? null;
