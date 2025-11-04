@@ -71,13 +71,17 @@
                 </div>
 
                 <!-- Remarks -->
-                <div style="line-height:2;">
-                    <b><i>Remarks :</i></b>
-                    <span class="dots">{{ $jobCard->remarks ?? '' }}</span>
+                <div class="remarks-section" style="margin-bottom: 15px;">
+                    <div style="display: flex; align-items: flex-start; line-height: 1.6;">
+                        <b><i style="flex-shrink: 0; margin-right: 5px;">Remarks :</i></b>
+                        <div style="flex: 1; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; white-space: normal;">
+                            {{ $jobCard->remarks ?? '' }}
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Total Consumption -->
-                <div style="line-height:2;">
+                <div style="line-height:2; margin-top: 10px;">
                     <b>Total Consumption (M²) :</b>
                     <span class="dots"></span>
                 </div>
@@ -128,6 +132,19 @@
             vertical-align: middle;
             text-align: left;
             padding-left: 10px;
+        }
+
+        /* Remarks text wrapping */
+        .remarks-section {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .remarks-section div {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
         }
 
         .job-lines div {
@@ -262,6 +279,19 @@
             /* Adjust job info spacing */
             .job-lines {
                 margin-top: 15px !important;
+            }
+
+            /* Ensure remarks text wraps properly in print */
+            .remarks-section {
+                page-break-inside: avoid;
+                margin-bottom: 15px !important;
+            }
+
+            .remarks-section div {
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                word-break: break-word !important;
+                white-space: normal !important;
             }
         }
     </style>

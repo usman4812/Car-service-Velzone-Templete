@@ -365,7 +365,7 @@ class JobCardController extends Controller
         if (!$user->hasRole('admin') && !$user->can('view-job-card-invoice')) {
             abort(403, 'Unauthorized action.');
         }
-        $jobCard = JobCard::with('salesPerson')->findOrFail($id);
+        $jobCard = JobCard::with(['salesPerson', 'customer'])->findOrFail($id);
         $jobCardItems = JobCardItem::with('product')->where('job_card_id', $id)->get();
 
         return view('pages.job-card.invoice', compact('jobCard', 'jobCardItems'));

@@ -321,3 +321,151 @@ function generateActionButtons($routeName, $id, $editPermission = null, $deleteP
     
     return $html;
 }
+
+/**
+ * Convert number to words in English (internal function without "only")
+ */
+function numberToWordsInternal($number)
+{
+    $ones = [
+        0 => 'zero', 1 => 'one', 2 => 'two', 3 => 'three', 4 => 'four',
+        5 => 'five', 6 => 'six', 7 => 'seven', 8 => 'eight', 9 => 'nine',
+        10 => 'ten', 11 => 'eleven', 12 => 'twelve', 13 => 'thirteen',
+        14 => 'fourteen', 15 => 'fifteen', 16 => 'sixteen', 17 => 'seventeen',
+        18 => 'eighteen', 19 => 'nineteen'
+    ];
+
+    $tens = [
+        2 => 'twenty', 3 => 'thirty', 4 => 'forty', 5 => 'fifty',
+        6 => 'sixty', 7 => 'seventy', 8 => 'eighty', 9 => 'ninety'
+    ];
+
+    $number = (float)$number;
+    $whole = floor($number);
+
+    if ($whole == 0) {
+        return 'zero';
+    }
+
+    $result = '';
+
+    // Handle thousands
+    if ($whole >= 1000) {
+        $thousands = floor($whole / 1000);
+        $result .= numberToWordsInternal($thousands) . ' thousand ';
+        $whole = $whole % 1000;
+    }
+
+    // Handle hundreds
+    if ($whole >= 100) {
+        $hundreds = floor($whole / 100);
+        $result .= $ones[$hundreds] . ' hundred ';
+        $whole = $whole % 100;
+    }
+
+    // Handle tens and ones
+    if ($whole > 0) {
+        if ($whole < 20) {
+            $result .= $ones[$whole];
+        } else {
+            $tensDigit = floor($whole / 10);
+            $onesDigit = $whole % 10;
+            $result .= $tens[$tensDigit];
+            if ($onesDigit > 0) {
+                $result .= ' ' . $ones[$onesDigit];
+            }
+        }
+    }
+
+    return trim($result);
+}
+
+/**
+ * Convert number to words in English
+ */
+function numberToWords($number)
+{
+    $number = (float)$number;
+    $whole = floor($number);
+    $fraction = round(($number - $whole) * 100);
+
+    $result = numberToWordsInternal($whole);
+
+    // Handle cents/fils
+    if ($fraction > 0) {
+        $result .= ' and ' . number_format($fraction, 0) . '/100';
+    }
+
+    return trim($result) . ' only';
+}
+
+/**
+ * Convert number to words in Arabic
+ */
+function numberToWordsArabic($number)
+{
+    $ones = [
+        0 => 'صفر', 1 => 'واحد', 2 => 'اثنان', 3 => 'ثلاثة', 4 => 'أربعة',
+        5 => 'خمسة', 6 => 'ستة', 7 => 'سبعة', 8 => 'ثمانية', 9 => 'تسعة',
+        10 => 'عشرة', 11 => 'أحد عشر', 12 => 'اثنا عشر', 13 => 'ثلاثة عشر',
+        14 => 'أربعة عشر', 15 => 'خمسة عشر', 16 => 'ستة عشر', 17 => 'سبعة عشر',
+        18 => 'ثمانية عشر', 19 => 'تسعة عشر'
+    ];
+
+    $tens = [
+        2 => 'عشرون', 3 => 'ثلاثون', 4 => 'أربعون', 5 => 'خمسون',
+        6 => 'ستون', 7 => 'سبعون', 8 => 'ثمانون', 9 => 'تسعون'
+    ];
+
+    $number = (float)$number;
+    $whole = floor($number);
+    $fraction = round(($number - $whole) * 100);
+
+    if ($whole == 0) {
+        return 'صفر';
+    }
+
+    $result = '';
+
+    // Handle thousands
+    if ($whole >= 1000) {
+        $thousands = floor($whole / 1000);
+        $result .= numberToWordsArabic($thousands) . ' ألف ';
+        $whole = $whole % 1000;
+    }
+
+    // Handle hundreds
+    if ($whole >= 100) {
+        $hundreds = floor($whole / 100);
+        if ($hundreds == 1) {
+            $result .= 'مائة ';
+        } elseif ($hundreds == 2) {
+            $result .= 'مائتان ';
+        } else {
+            $result .= $ones[$hundreds] . 'مائة ';
+        }
+        $whole = $whole % 100;
+    }
+
+    // Handle tens and ones
+    if ($whole > 0) {
+        if ($whole < 20) {
+            $result .= $ones[$whole];
+        } else {
+            $tensDigit = floor($whole / 10);
+            $onesDigit = $whole % 10;
+            if ($onesDigit > 0) {
+                $result .= $ones[$onesDigit] . ' و ' . $tens[$tensDigit];
+            } else {
+                $result .= $tens[$tensDigit];
+            }
+        }
+    }
+
+    // Handle cents/fils
+    if ($fraction > 0) {
+        $result .= ' و ' . number_format($fraction, 0) . '/100';
+    }
+
+    return trim($result);
+}
