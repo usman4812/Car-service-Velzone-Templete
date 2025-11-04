@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Categories;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class CategoriesController extends Controller
@@ -24,12 +25,12 @@ class CategoriesController extends Controller
                         : '<span class="badge bg-danger">Inactive</span>';
                 })
                 ->addColumn('action', function ($row) {
+                    $user = Auth::user();
+                    $canEdit = $user->hasRole('admin') || $user->can('edit-category');
+                    $canDelete = $user->hasRole('admin') || $user->can('delete-category');
+
                     $editUrl = route('categories.edit', $row->id);
                     $deleteUrl = route('categories.destroy', $row->id);
-                    
-                    $user = auth()->user();
-                    $canEdit = $user && ($user->hasRole('admin') || $user->can('edit-category'));
-                    $canDelete = $user && ($user->hasRole('admin') || $user->can('delete-category'));
 
                     $html = '
                     <div class="dropdown d-inline-block">
@@ -37,7 +38,7 @@ class CategoriesController extends Controller
                             <i class="ri-more-fill align-middle"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">';
-                    
+
                     if ($canEdit) {
                         $html .= '
                             <li>
@@ -46,7 +47,7 @@ class CategoriesController extends Controller
                                 </a>
                             </li>';
                     }
-                    
+
                     if ($canDelete) {
                         $html .= '
                             <li>
@@ -58,15 +59,15 @@ class CategoriesController extends Controller
                                 </form>
                             </li>';
                     }
-                    
+
                     if (!$canEdit && !$canDelete) {
                         $html .= '<li><span class="dropdown-item text-muted">No actions available</span></li>';
                     }
-                    
+
                     $html .= '
                         </ul>
                     </div>';
-                    
+
                     return $html;
                 })
                 ->rawColumns(['status', 'action'])
@@ -82,6 +83,10 @@ class CategoriesController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-category')) {
+            abort(403, 'Unauthorized action.');
+        }
         return view('pages.category.create');
     }
 
@@ -90,6 +95,10 @@ class CategoriesController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-category')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
@@ -112,6 +121,10 @@ class CategoriesController extends Controller
      */
     public function edit(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-category')) {
+            abort(403, 'Unauthorized action.');
+        }
         $category = Categories::find($id);
         return view('pages.category.edit', compact('category'));
     }
@@ -121,6 +134,10 @@ class CategoriesController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-category')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
@@ -136,6 +153,10 @@ class CategoriesController extends Controller
      */
     public function destroy(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('delete-category')) {
+            abort(403, 'Unauthorized action.');
+        }
         $category = Categories::find($id);
         if ($category) {
             $category->delete();

@@ -7,9 +7,11 @@
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0 flex-grow-1">Car Manufacture List</h5>
                     <div>
-                        <a id="addRow" href="{{ route('car-manufactures.create') }}" class="btn btn-primary">
-                            Add Car Manufacture
-                        </a>
+                        @can('create-car-manufacture')
+                            <a id="addRow" href="{{ route('car-manufactures.create') }}" class="btn btn-primary">
+                                Add Car Manufacture
+                            </a>
+                        @endcan
                     </div>
                 </div>
 
@@ -64,12 +66,7 @@
                         data: 'status',
                         name: 'status',
                         orderable: false,
-                        searchable: false,
-                        render: function(data) {
-                            return data === 'active' ?
-                                '<span class="badge bg-success">Active</span>' :
-                                '<span class="badge bg-danger">Inactive</span>';
-                        }
+                        searchable: false
                     },
                     {
                         data: 'action',

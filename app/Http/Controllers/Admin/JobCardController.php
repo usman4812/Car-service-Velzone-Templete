@@ -10,6 +10,7 @@ use App\Models\SalesPerson;
 use Illuminate\Http\Request;
 use App\Models\CarManufactures;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class JobCardController extends Controller
@@ -76,52 +77,67 @@ class JobCardController extends Controller
                 return number_format($row->total_payable ?? 0, 2);
             })
 
-                // ✅ Action Buttons
+                // ✅ Action Buttons with Permission Checks
                 ->addColumn('action', function ($row) {
+                    $user = Auth::user();
+                    $canEdit = $user->hasRole('admin') || $user->can('edit-job-card');
+                    $canDelete = $user->hasRole('admin') || $user->can('delete-job-card');
+                    $canViewInvoice = $user->hasRole('admin') || $user->can('view-job-card-invoice');
+
                     $editUrl = route('job-card.edit', $row->id);
                     $replacementUrl = route('job-card.replacement', $row->id);
                     $deleteUrl = route('job-card.destroy', $row->id);
                     $invoiceUrl = route('job-card.invoice', $row->id);
                     $jobCardUrl = route('job-card.show', $row->id);
 
-                    return '
-                    <div class="dropdown d-inline-block">
+                    $html = '<div class="dropdown d-inline-block">
                         <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="ri-more-fill align-middle"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
-                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
-                                </a>
-                            </li>
-                            <li>
-                                <a href="' . $replacementUrl . '" class="dropdown-item">
-                                    <i class="ri-refresh-line align-bottom me-2 text-muted"></i> Replacement
-                                </a>
-                            </li>
-                            <li>
-                                <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
-                                    ' . csrf_field() . method_field('DELETE') . '
-                                    <button type="button" class="dropdown-item remove-item-btn show-confirm">
-                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
-                                    </button>
-                                </form>
-                            </li>
-                            <li>
-                                <a href="' . $invoiceUrl . '" target="_blank" class="dropdown-item">
-                                    <i class="ri-file-text-line align-bottom me-2 text-muted"></i> Invoice
-                                </a>
-                            </li>
-                            <li>
-                                <a href="' . $jobCardUrl . '" target="_blank" class="dropdown-item">
-                                    <i class="ri-car-line align-bottom me-2 text-muted"></i> Job Card
-                                </a>
-                            </li>
+                        <ul class="dropdown-menu dropdown-menu-end">';
+
+                    if ($canEdit) {
+                        $html .= '<li>
+                            <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
+                                <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                            </a>
+                        </li>
+                        <li>
+                            <a href="' . $replacementUrl . '" class="dropdown-item">
+                                <i class="ri-refresh-line align-bottom me-2 text-muted"></i> Replacement
+                            </a>
+                        </li>';
+                    }
+
+                    if ($canDelete) {
+                        $html .= '<li>
+                            <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                ' . csrf_field() . method_field('DELETE') . '
+                                <button type="button" class="dropdown-item remove-item-btn show-confirm">
+                                    <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
+                                </button>
+                            </form>
+                        </li>';
+                    }
+
+                    if ($canViewInvoice) {
+                        $html .= '<li>
+                            <a href="' . $invoiceUrl . '" target="_blank" class="dropdown-item">
+                                <i class="ri-file-text-line align-bottom me-2 text-muted"></i> Invoice
+                            </a>
+                        </li>';
+                    }
+
+                    $html .= '<li>
+                            <a href="' . $jobCardUrl . '" target="_blank" class="dropdown-item">
+                                <i class="ri-car-line align-bottom me-2 text-muted"></i> Job Card
+                            </a>
+                        </li>
                         </ul>
-                    </div>
-                ';
+                    </div>';
+
+                    return $html;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -136,6 +152,10 @@ class JobCardController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-job-card')) {
+            abort(403, 'Unauthorized action.');
+        }
         $latestJobCard = JobCard::latest('id')->first();
         if ($latestJobCard) {
             $lastNumber = (int) str_replace('TSC-', '', $latestJobCard->job_card_no);
@@ -157,6 +177,10 @@ class JobCardController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-job-card')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'job_card_no' => 'required',
             'date' => 'required|date',
@@ -221,6 +245,10 @@ class JobCardController extends Controller
      */
     public function show(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('view-job-card')) {
+            abort(403, 'Unauthorized action.');
+        }
         $jobCard = JobCard::with(['salesPerson', 'items'])->findOrFail($id);
         return view('pages.job-card.view', compact('jobCard'));
     }
@@ -230,6 +258,10 @@ class JobCardController extends Controller
      */
     public function edit(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-job-card')) {
+            abort(403, 'Unauthorized action.');
+        }
         $jobCard = JobCard::find($id);
         $jobCardItems = JobCardItem::where('job_card_id', $id)->get();
         $carMenus = CarManufactures::pluck('name', 'id');
@@ -244,6 +276,10 @@ class JobCardController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-job-card')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'job_card_no' => 'required',
             'date' => 'required|date',
@@ -307,6 +343,10 @@ class JobCardController extends Controller
      */
     public function destroy(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('delete-job-card')) {
+            abort(403, 'Unauthorized action.');
+        }
         $jobCard = JobCard::find($id);
         if ($jobCard) {
             $jobCard->delete();
@@ -316,8 +356,15 @@ class JobCardController extends Controller
         }
     }
 
+    /**
+     * Show invoice for the specified job card.
+     */
     public function showInvoice($id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('view-job-card-invoice')) {
+            abort(403, 'Unauthorized action.');
+        }
         $jobCard = JobCard::with('salesPerson')->findOrFail($id);
         $jobCardItems = JobCardItem::with('product')->where('job_card_id', $id)->get();
 
@@ -329,6 +376,10 @@ class JobCardController extends Controller
      */
     public function replacement(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-job-card')) {
+            abort(403, 'Unauthorized action.');
+        }
         $jobCard = JobCard::find($id);
         $jobCardItems = JobCardItem::where('job_card_id', $id)->get();
         $carMenus = CarManufactures::pluck('name', 'id');
@@ -344,6 +395,10 @@ class JobCardController extends Controller
      */
     public function updateReplacement(Request $request, $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-job-card')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'job_card_no' => 'required',
             'date' => 'required|date',

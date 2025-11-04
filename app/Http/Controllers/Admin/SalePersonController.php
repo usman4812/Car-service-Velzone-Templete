@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\SalesPerson;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class SalePersonController extends Controller
@@ -24,32 +25,46 @@ class SalePersonController extends Controller
                         : '<span class="badge bg-danger">Inactive</span>';
                 })
                 ->addColumn('action', function ($row) {
+                    $user = Auth::user();
+                    $canEdit = $user->hasRole('admin') || $user->can('edit-sales-person');
+                    $canDelete = $user->hasRole('admin') || $user->can('delete-sales-person');
+
                     $editUrl = route('sales-persons.edit', $row->id);
                     $deleteUrl = route('sales-persons.destroy', $row->id);
 
-                    return '
-                    <div class="dropdown d-inline-block">
+                    $html = '<div class="dropdown d-inline-block">
                         <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="ri-more-fill align-middle"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
-                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
-                                </a>
-                            </li>
-                            <li>
-                                <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
-                                    ' . csrf_field() . method_field('DELETE') . '
-                                    <button type="button" class="dropdown-item remove-item-btn show-confirm">
-                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-                ';
+                        <ul class="dropdown-menu dropdown-menu-end">';
+
+                    if ($canEdit) {
+                        $html .= '<li>
+                            <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
+                                <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                            </a>
+                        </li>';
+                    }
+
+                    if ($canDelete) {
+                        $html .= '<li>
+                            <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                ' . csrf_field() . method_field('DELETE') . '
+                                <button type="button" class="dropdown-item remove-item-btn show-confirm">
+                                    <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
+                                </button>
+                            </form>
+                        </li>';
+                    }
+
+                    if (!$canEdit && !$canDelete) {
+                        $html .= '<li><span class="dropdown-item text-muted">No actions available</span></li>';
+                    }
+
+                    $html .= '</ul></div>';
+
+                    return $html;
                 })
                 ->rawColumns(['status', 'action'])
                 ->make(true);
@@ -64,6 +79,10 @@ class SalePersonController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-sales-person')) {
+            abort(403, 'Unauthorized action.');
+        }
         return view('pages.sale-person.create');
     }
 
@@ -72,6 +91,10 @@ class SalePersonController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-sales-person')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name'         => 'required|string|max:255',
             'email'        => 'required|email',
@@ -101,6 +124,10 @@ class SalePersonController extends Controller
      */
     public function edit(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-sales-person')) {
+            abort(403, 'Unauthorized action.');
+        }
         $salePerson = SalesPerson::find($id);
         return view('pages.sale-person.edit', compact('salePerson'));
     }
@@ -110,6 +137,10 @@ class SalePersonController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-sales-person')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name'         => 'required|string|max:255',
             'email'        => 'required|email',
@@ -136,6 +167,10 @@ class SalePersonController extends Controller
      */
     public function destroy(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('delete-sales-person')) {
+            abort(403, 'Unauthorized action.');
+        }
         $sale_person = SalesPerson::find($id);
         if ($sale_person) {
             $sale_person->delete();

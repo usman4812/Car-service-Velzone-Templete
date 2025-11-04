@@ -104,7 +104,7 @@
                                         <select id="manu_year" class="form-select" data-choices
                                             data-choices-sorting="true" name="manu_year">
                                             <option value="">Select Manufacturing Year</option>
-                                            @for ($year = date('Y'); $year >= 2000; $year--)
+                                            @for ($year = date('Y'); $year >= 2010; $year--)
                                                 <option value="{{ $year }}"
                                                     {{ old('manu_year', $jobCard->manu_year) == $year ? 'selected' : '' }}>
                                                     {{ $year }}

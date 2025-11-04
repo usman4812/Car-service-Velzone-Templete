@@ -7,7 +7,9 @@
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0 flex-grow-1">Customer List</h5>
                     <div>
-                        <a id="addRow" href="{{ route('customers.create') }}" class="btn btn-primary">Add Customer</a>
+                        @can('create-customer')
+                            <a id="addRow" href="{{ route('customers.create') }}" class="btn btn-primary">Add Customer</a>
+                        @endcan
                     </div>
                 </div>
 

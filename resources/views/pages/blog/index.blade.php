@@ -8,9 +8,11 @@
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0 flex-grow-1">Blog List</h5>
                     <div>
-                        <a href="{{ route('blog.create') }}" class="btn btn-primary">
-                            Add Blog
-                        </a>
+                        @can('create-blog')
+                            <a href="{{ route('blog.create') }}" class="btn btn-primary">
+                                Add Blog
+                            </a>
+                        @endcan
                     </div>
                 </div>
 

@@ -8,9 +8,11 @@
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0 flex-grow-1">Roles List</h5>
                     <div>
-                        <a href="{{ route('roles.create') }}" class="btn btn-primary">
-                            Add Role
-                        </a>
+                        @can('create-role')
+                            <a href="{{ route('roles.create') }}" class="btn btn-primary">
+                                Add Role
+                            </a>
+                        @endcan
                     </div>
                 </div>
                 <div class="card-body">

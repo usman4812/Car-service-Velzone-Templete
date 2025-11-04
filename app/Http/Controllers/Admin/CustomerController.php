@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class CustomerController extends Controller
@@ -27,7 +28,7 @@ class CustomerController extends Controller
                 ->addColumn('action', function ($row) {
                     $editUrl = route('customers.edit', $row->id);
                     $deleteUrl = route('customers.destroy', $row->id);
-                    
+
                     $user = auth()->user();
                     $canEdit = $user && ($user->hasRole('admin') || $user->can('edit-customer'));
                     $canDelete = $user && ($user->hasRole('admin') || $user->can('delete-customer'));
@@ -39,7 +40,7 @@ class CustomerController extends Controller
                             <i class="ri-more-fill align-middle"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">';
-                    
+
                     if ($canEdit) {
                         $html .= '
                             <li>
@@ -48,7 +49,7 @@ class CustomerController extends Controller
                                 </a>
                             </li>';
                     }
-                    
+
                     if ($canDelete) {
                         $html .= '
                             <li>
@@ -60,15 +61,15 @@ class CustomerController extends Controller
                                 </form>
                             </li>';
                     }
-                    
+
                     if (!$canEdit && !$canDelete) {
                         $html .= '<li><span class="dropdown-item text-muted">No actions available</span></li>';
                     }
-                    
+
                     $html .= '
                         </ul>
                     </div>';
-                    
+
                     return $html;
                 })
                 ->rawColumns(['status', 'action'])
@@ -84,6 +85,10 @@ class CustomerController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-customer')) {
+            abort(403, 'Unauthorized action.');
+        }
         return view('pages.customer.create');
     }
 
@@ -92,6 +97,10 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-customer')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name'         => 'required|string|max:255',
             'phone'        => 'required|string',
@@ -124,6 +133,10 @@ class CustomerController extends Controller
      */
     public function edit(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-customer')) {
+            abort(403, 'Unauthorized action.');
+        }
         $customer = Customer::find($id);
         return view('pages.customer.edit', compact('customer'));
     }
@@ -133,6 +146,10 @@ class CustomerController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-customer')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name'         => 'required|string|max:255',
             'phone'        => 'required|string',
@@ -153,6 +170,10 @@ class CustomerController extends Controller
      */
     public function destroy(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('delete-customer')) {
+            abort(403, 'Unauthorized action.');
+        }
         $customer = Customer::findOrFail($id);
         if ($customer) {
             $customer->delete();

@@ -8,6 +8,7 @@ use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use GuzzleHttp\Handler\Proxy;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
@@ -39,12 +40,12 @@ public function index(Request $request)
                     : '<span class="badge bg-danger">Inactive</span>';
             })
             ->addColumn('action', function ($row) {
+                $user = Auth::user();
+                $canEdit = $user->hasRole('admin') || $user->can('edit-product');
+                $canDelete = $user->hasRole('admin') || $user->can('delete-product');
+
                 $editUrl = route('products.edit', $row->id);
                 $deleteUrl = route('products.destroy', $row->id);
-                
-                $user = auth()->user();
-                $canEdit = $user && ($user->hasRole('admin') || $user->can('edit-product'));
-                $canDelete = $user && ($user->hasRole('admin') || $user->can('delete-product'));
 
                 $html = '
                 <div class="dropdown d-inline-block">
@@ -53,7 +54,7 @@ public function index(Request $request)
                         <i class="ri-more-fill align-middle"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">';
-                
+
                 if ($canEdit) {
                     $html .= '
                         <li>
@@ -62,7 +63,7 @@ public function index(Request $request)
                             </a>
                         </li>';
                 }
-                
+
                 if ($canDelete) {
                     $html .= '
                         <li>
@@ -74,15 +75,15 @@ public function index(Request $request)
                             </form>
                         </li>';
                 }
-                
+
                 if (!$canEdit && !$canDelete) {
                     $html .= '<li><span class="dropdown-item text-muted">No actions available</span></li>';
                 }
-                
+
                 $html .= '
                     </ul>
                 </div>';
-                
+
                 return $html;
             })
             ->rawColumns(['image', 'status', 'action'])
@@ -98,6 +99,10 @@ public function index(Request $request)
      */
     public function create()
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-product')) {
+            abort(403, 'Unauthorized action.');
+        }
         $categories = Categories::pluck('name', 'id');
         return view('pages.product.create',compact('categories'));
     }
@@ -107,6 +112,10 @@ public function index(Request $request)
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-product')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'price' =>'required',
@@ -139,6 +148,10 @@ public function index(Request $request)
      */
     public function edit(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-product')) {
+            abort(403, 'Unauthorized action.');
+        }
         $product = Product::find($id);
         $categories = Categories::pluck('name', 'id');
         $subCategories = SubCategory::where('category_id', $product->category_id)->pluck('name', 'id');
@@ -150,6 +163,10 @@ public function index(Request $request)
      */
     public function update(Request $request, string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-product')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'price' =>'required',
@@ -180,6 +197,10 @@ public function index(Request $request)
      */
     public function destroy(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('delete-product')) {
+            abort(403, 'Unauthorized action.');
+        }
         $product = Product::find($id);
         if ($product) {
             $product->delete();

@@ -7,7 +7,9 @@
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0 flex-grow-1">Products</h5>
                     <div>
-                        <a href="{{ route('products.create') }}" class="btn btn-primary">Add Product</a>
+                        @can('create-product')
+                            <a href="{{ route('products.create') }}" class="btn btn-primary">Add Product</a>
+                        @endcan
                     </div>
                 </div>
                 <div class="card-body">

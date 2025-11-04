@@ -24,7 +24,7 @@ class UserController extends Controller
                 ->addColumn('action', function ($row) {
                     $editUrl = route('users.edit', $row->id);
                     $deleteUrl = route('users.destroy', $row->id);
-                    
+
                     $user = auth()->user();
                     $canEdit = $user && ($user->hasRole('admin') || $user->can('edit-user'));
                     $canDelete = $user && ($user->hasRole('admin') || $user->can('delete-user'));
@@ -36,7 +36,7 @@ class UserController extends Controller
                             <i class="ri-more-fill align-middle"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">';
-                    
+
                     if ($canEdit) {
                         $html .= '
                             <li>
@@ -45,7 +45,7 @@ class UserController extends Controller
                                 </a>
                             </li>';
                     }
-                    
+
                     if ($canDelete) {
                         $html .= '
                             <li>
@@ -57,15 +57,15 @@ class UserController extends Controller
                                 </form>
                             </li>';
                     }
-                    
+
                     if (!$canEdit && !$canDelete) {
                         $html .= '<li><span class="dropdown-item text-muted">No actions available</span></li>';
                     }
-                    
+
                     $html .= '
                         </ul>
                     </div>';
-                    
+
                     return $html;
                 })
                 ->rawColumns(['action'])
@@ -92,7 +92,6 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
-            'phone' => 'required|string|max:20|unique:users,phone',
             'password' => 'required|string|min:8',
             'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,id',
@@ -144,7 +143,6 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'phone' => 'required|string|max:20|unique:users,phone,' . $user->id,
             'password' => 'nullable|string|min:8',
             'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,id',

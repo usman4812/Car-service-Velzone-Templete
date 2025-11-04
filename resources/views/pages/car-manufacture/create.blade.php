@@ -34,8 +34,8 @@
                                         <select id="ForminputState" class="form-select" data-choices
                                             data-choices-sorting="true" name="status">
                                             <option selected>Choose...</option>
-                                            <option value="active" selected>Active</option>
-                                            <option value="inactive">In Active</option>
+                                            <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                            <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>In Active</option>
 
                                         </select>
                                     </div>

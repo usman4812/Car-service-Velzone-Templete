@@ -7,7 +7,9 @@
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0 flex-grow-1">Category List</h5>
                     <div>
-                        <a id="addRow" href="{{ route('categories.create') }}" class="btn btn-primary">Add Category</a>
+                        @can('create-category')
+                            <a id="addRow" href="{{ route('categories.create') }}" class="btn btn-primary">Add Category</a>
+                        @endcan
                     </div>
                 </div>
                 <div class="card-body">

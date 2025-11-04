@@ -8,9 +8,11 @@
                     <div class="card-header d-flex align-items-center">
                         <h5 class="card-title mb-0 flex-grow-1">Worker List</h5>
                         <div>
-                            <a id="addRow" href="{{ route('workers.create') }}" class="btn btn-primary">
-                                Add Worker
-                            </a>
+                            @can('create-worker')
+                                <a id="addRow" href="{{ route('workers.create') }}" class="btn btn-primary">
+                                    Add Worker
+                                </a>
+                            @endcan
                         </div>
                     </div>
                     <div class="card-body">

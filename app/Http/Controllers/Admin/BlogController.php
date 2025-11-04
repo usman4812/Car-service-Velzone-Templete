@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Blog;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class BlogController extends Controller
@@ -37,32 +38,46 @@ class BlogController extends Controller
                         : '<span class="badge bg-danger">Inactive</span>';
                 })
                 ->addColumn('action', function ($row) {
+                    $user = Auth::user();
+                    $canEdit = $user->hasRole('admin') || $user->can('edit-blog');
+                    $canDelete = $user->hasRole('admin') || $user->can('delete-blog');
+
                     $editUrl = route('blog.edit', $row->id);
                     $deleteUrl = route('blog.destroy', $row->id);
 
-                    return '
-                    <div class="dropdown d-inline-block">
+                    $html = '<div class="dropdown d-inline-block">
                         <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="ri-more-fill align-middle"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
-                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
-                                </a>
-                            </li>
-                            <li>
-                                <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
-                                    ' . csrf_field() . method_field('DELETE') . '
-                                    <button type="button" class="dropdown-item remove-item-btn show-confirm">
-                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-                ';
+                        <ul class="dropdown-menu dropdown-menu-end">';
+
+                    if ($canEdit) {
+                        $html .= '<li>
+                            <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
+                                <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                            </a>
+                        </li>';
+                    }
+
+                    if ($canDelete) {
+                        $html .= '<li>
+                            <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                ' . csrf_field() . method_field('DELETE') . '
+                                <button type="button" class="dropdown-item remove-item-btn show-confirm">
+                                    <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
+                                </button>
+                            </form>
+                        </li>';
+                    }
+
+                    if (!$canEdit && !$canDelete) {
+                        $html .= '<li><span class="dropdown-item text-muted">No actions available</span></li>';
+                    }
+
+                    $html .= '</ul></div>';
+
+                    return $html;
                 })
                 ->rawColumns(['image', 'status', 'action'])
                 ->make(true);
@@ -76,6 +91,10 @@ class BlogController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-blog')) {
+            abort(403, 'Unauthorized action.');
+        }
         return view('pages.blog.create');
     }
 
@@ -84,6 +103,10 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-blog')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -120,6 +143,10 @@ class BlogController extends Controller
      */
     public function edit(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-blog')) {
+            abort(403, 'Unauthorized action.');
+        }
         $blog = Blog::find($id);
         return view('pages.blog.edit', compact('blog'));
     }
@@ -129,6 +156,10 @@ class BlogController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-blog')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -159,6 +190,10 @@ class BlogController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('delete-blog')) {
+            abort(403, 'Unauthorized action.');
+        }
         $blog = Blog::find($id);
         if (!$blog) {
             return redirect()->route('blog.index')->with('error', 'Blog not found.');

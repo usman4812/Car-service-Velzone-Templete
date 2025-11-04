@@ -7,6 +7,7 @@ use App\Models\QuotationItem;
 use App\Models\Categories;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class MakingQuotationController extends Controller
@@ -79,7 +80,7 @@ class MakingQuotationController extends Controller
                     $editUrl = route('making-quotation.edit', $row->id);
                     $deleteUrl = route('making-quotation.destroy', $row->id);
                     $showUrl = route('making-quotation.show', $row->id);
-                    
+
                     $user = \Illuminate\Support\Facades\Auth::user();
                     $canEdit = $user && ($user->hasRole('admin') || $user->can('edit-making-quotation'));
                     $canDelete = $user && ($user->hasRole('admin') || $user->can('delete-making-quotation'));
@@ -91,7 +92,7 @@ class MakingQuotationController extends Controller
                             <i class="ri-more-fill align-middle"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">';
-                    
+
                     if ($canEdit) {
                         $html .= '
                             <li>
@@ -100,7 +101,7 @@ class MakingQuotationController extends Controller
                                 </a>
                             </li>';
                     }
-                    
+
                     if ($canDelete) {
                         $html .= '
                             <li>
@@ -112,7 +113,7 @@ class MakingQuotationController extends Controller
                                 </form>
                             </li>';
                     }
-                    
+
                     $html .= '
                             <li>
                                 <a href="' . $showUrl . '" target="_blank" class="dropdown-item">
@@ -121,7 +122,7 @@ class MakingQuotationController extends Controller
                             </li>
                         </ul>
                     </div>';
-                    
+
                     return $html;
                 })
                 ->rawColumns(['action'])
@@ -136,6 +137,10 @@ class MakingQuotationController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-making-quotation')) {
+            abort(403, 'Unauthorized action.');
+        }
         // Generate quotation number
         $latestQuotation = Quotation::latest()->first();
         if ($latestQuotation) {
@@ -147,7 +152,7 @@ class MakingQuotationController extends Controller
         $quotationNo = 'QUO-' . str_pad($nextNumber, 2, '0', STR_PAD_LEFT);
 
         $categories = Categories::pluck('name', 'id');
-        
+
         return view('pages.quotation.create', compact('categories', 'quotationNo'));
     }
 
@@ -156,6 +161,10 @@ class MakingQuotationController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-making-quotation')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'quotation_no' => 'required',
             'date' => 'required|date',
@@ -214,10 +223,14 @@ class MakingQuotationController extends Controller
      */
     public function show(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('view-making-quotation')) {
+            abort(403, 'Unauthorized action.');
+        }
         $quotation = Quotation::with('items')->findOrFail($id);
         // Load relationships for items
         $quotation->items->load('category', 'subCategory', 'product');
-        
+
         return view('pages.quotation.view', compact('quotation'));
     }
 
@@ -226,10 +239,14 @@ class MakingQuotationController extends Controller
      */
     public function edit(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-making-quotation')) {
+            abort(403, 'Unauthorized action.');
+        }
         $quotation = Quotation::findOrFail($id);
         $quotationItems = QuotationItem::where('quotation_id', $id)->get();
         $categories = Categories::pluck('name', 'id');
-        
+
         return view('pages.quotation.edit', compact('quotation', 'quotationItems', 'categories'));
     }
 
@@ -238,6 +255,10 @@ class MakingQuotationController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-making-quotation')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'quotation_no' => 'required',
             'date' => 'required|date',
@@ -269,7 +290,7 @@ class MakingQuotationController extends Controller
 
         // Step 2: Delete existing items and insert new ones
         QuotationItem::where('quotation_id', $quotation->id)->delete();
-        
+
         if ($request->has('category_id')) {
             foreach ($request->category_id as $key => $categoryId) {
                 if ($categoryId && isset($request->product_id[$key]) && $request->product_id[$key]) {
@@ -300,6 +321,10 @@ class MakingQuotationController extends Controller
      */
     public function destroy(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('delete-making-quotation')) {
+            abort(403, 'Unauthorized action.');
+        }
         $quotation = Quotation::find($id);
         if ($quotation) {
             // Delete associated items first

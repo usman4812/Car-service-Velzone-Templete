@@ -8,9 +8,11 @@
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0 flex-grow-1">Service List</h5>
                     <div>
-                        <a id="addRow" href="{{ route('services.create') }}" class="btn btn-primary">
-                            Add Service
-                        </a>
+                        @can('create-service')
+                            <a id="addRow" href="{{ route('services.create') }}" class="btn btn-primary">
+                                Add Service
+                            </a>
+                        @endcan
                     </div>
                 </div>
                 <div class="card-body">

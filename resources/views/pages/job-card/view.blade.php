@@ -15,7 +15,14 @@
                 <!-- Title with Print Button -->
                 <div style="margin-top: 20px; text-align:center; position:relative;">
                     <h4 class="fw-bold mb-4" style="letter-spacing: 1px;">Job Card</h4>
-                    <button class="print-btn" onclick="window.print()">Print</button>
+                    <div style="position: absolute; right: 0; top: 0;">
+                        @can('view-job-card-invoice')
+                            <a href="{{ route('job-card.invoice', $jobCard->id) }}" target="_blank" class="btn btn-sm btn-primary me-2" style="background-color: #0ab39c; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; text-decoration: none; display: inline-block;">
+                                <i class="ri-file-text-line"></i> View Invoice
+                            </a>
+                        @endcan
+                        <button class="print-btn" onclick="window.print()">Print</button>
+                    </div>
                 </div>
 
                 <!-- Job Info Lines -->

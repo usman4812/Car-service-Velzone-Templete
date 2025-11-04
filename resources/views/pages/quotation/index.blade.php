@@ -8,7 +8,9 @@
                     <div class="d-flex align-items-center">
                         <h5 class="card-title mb-0 flex-grow-1">Quotation List</h5>
                         <div>
-                            <a href="{{ route('making-quotation.create') }}" class="btn btn-primary">Add Quotation</a>
+                            @can('create-making-quotation')
+                                <a href="{{ route('making-quotation.create') }}" class="btn btn-primary">Add Quotation</a>
+                            @endcan
                         </div>
                     </div>
                 </div>
@@ -100,7 +102,7 @@
                 responsive: true,
                 pageLength: 10
             });
-                        
+
             // SweetAlert Delete Confirmation
             $(document).on('click', '.show-confirm', function(e) {
                 e.preventDefault();

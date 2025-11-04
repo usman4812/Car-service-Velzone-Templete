@@ -6,6 +6,7 @@ use App\Models\Categories;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class SubCategoryController extends Controller
@@ -28,31 +29,45 @@ class SubCategoryController extends Controller
                         : '<span class="badge bg-danger">Inactive</span>';
                 })
                 ->addColumn('action', function ($row) {
+                    $user = Auth::user();
+                    $canEdit = $user->hasRole('admin') || $user->can('edit-sub-category');
+                    $canDelete = $user->hasRole('admin') || $user->can('delete-sub-category');
+
                     $editUrl = route('sub-categories.edit', $row->id);
                     $deleteUrl = route('sub-categories.destroy', $row->id);
 
-                    return '
-                <div class="dropdown d-inline-block">
-                    <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="ri-more-fill align-middle"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
+                    $html = '<div class="dropdown d-inline-block">
+                        <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="ri-more-fill align-middle"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">';
+
+                    if ($canEdit) {
+                        $html .= '<li>
                             <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
                                 <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
                             </a>
-                        </li>
-                        <li>
+                        </li>';
+                    }
+
+                    if ($canDelete) {
+                        $html .= '<li>
                             <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
                                 ' . csrf_field() . method_field('DELETE') . '
                                 <button type="button" class="dropdown-item remove-item-btn show-confirm">
                                     <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
                                 </button>
                             </form>
-                        </li>
-                    </ul>
-                </div>
-                ';
+                        </li>';
+                    }
+
+                    if (!$canEdit && !$canDelete) {
+                        $html .= '<li><span class="dropdown-item text-muted">No actions available</span></li>';
+                    }
+
+                    $html .= '</ul></div>';
+
+                    return $html;
                 })
                 ->rawColumns(['status', 'action'])
                 ->make(true);
@@ -67,6 +82,10 @@ class SubCategoryController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-sub-category')) {
+            abort(403, 'Unauthorized action.');
+        }
         $categories = Categories::pluck('name', 'id');
         return view('pages.sub-category.create', compact('categories'));
     }
@@ -76,6 +95,10 @@ class SubCategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-sub-category')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required',
@@ -99,6 +122,10 @@ class SubCategoryController extends Controller
      */
     public function edit($id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-sub-category')) {
+            abort(403, 'Unauthorized action.');
+        }
         $subCategory = SubCategory::findOrFail($id);
         $categories = Categories::pluck('name', 'id');
         return view('pages.sub-category.edit', compact('subCategory', 'categories'));
@@ -110,6 +137,10 @@ class SubCategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-sub-category')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required',
@@ -126,6 +157,10 @@ class SubCategoryController extends Controller
      */
     public function destroy(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('delete-sub-category')) {
+            abort(403, 'Unauthorized action.');
+        }
         $subCategory = SubCategory::findOrFail($id);
         if ($subCategory) {
             $subCategory->delete();

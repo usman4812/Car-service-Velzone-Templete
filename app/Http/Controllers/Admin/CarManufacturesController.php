@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Models\CarManufactures;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class CarManufacturesController extends Controller
@@ -19,41 +20,56 @@ class CarManufacturesController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('image', function ($row) {
-                    $imagePath = asset('storage/carManufacture/' . ($row->image ?? 'avatar.png'));
+                    $imagePath = asset('storage/carManufacture/' . ($row->image ?? 'car-img.jpg'));
                     return '<img src="' . $imagePath . '" alt="Car" width="90" height="60" class="img-thumbnail" />';
                 })
                 ->addColumn('status', function ($row) {
-                    return $row->status === 'active'
+                    $status = strtolower(trim($row->status ?? ''));
+                    return $status === 'active'
                         ? '<span class="badge bg-success">Active</span>'
                         : '<span class="badge bg-danger">Inactive</span>';
                 })
                 ->addColumn('action', function ($row) {
+                    $user = Auth::user();
+                    $canEdit = $user->hasRole('admin') || $user->can('edit-car-manufacture');
+                    $canDelete = $user->hasRole('admin') || $user->can('delete-car-manufacture');
+
                     $editUrl = route('car-manufactures.edit', $row->id);
                     $deleteUrl = route('car-manufactures.destroy', $row->id);
 
-                    return '
-                    <div class="dropdown d-inline-block">
+                    $html = '<div class="dropdown d-inline-block">
                         <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="ri-more-fill align-middle"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
-                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
-                                </a>
-                            </li>
-                            <li>
-                                <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
-                                    ' . csrf_field() . method_field('DELETE') . '
-                                    <button type="button" class="dropdown-item remove-item-btn show-confirm">
-                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-                ';
+                        <ul class="dropdown-menu dropdown-menu-end">';
+
+                    if ($canEdit) {
+                        $html .= '<li>
+                            <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
+                                <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                            </a>
+                        </li>';
+                    }
+
+                    if ($canDelete) {
+                        $html .= '<li>
+                            <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                ' . csrf_field() . method_field('DELETE') . '
+                                <button type="button" class="dropdown-item remove-item-btn show-confirm">
+                                    <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
+                                </button>
+                            </form>
+                        </li>';
+                    }
+
+                    if (!$canEdit && !$canDelete) {
+                        $html .= '<li><span class="dropdown-item text-muted">No actions available</span></li>';
+                    }
+
+                    $html .= '</ul></div>';
+
+                    return $html;
                 })
                 ->rawColumns(['image', 'status', 'action'])
                 ->make(true);
@@ -65,6 +81,10 @@ class CarManufacturesController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-car-manufacture')) {
+            abort(403, 'Unauthorized action.');
+        }
         return view('pages.car-manufacture.create');
     }
 
@@ -73,15 +93,18 @@ class CarManufacturesController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-car-manufacture')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
         $req_data = $request->all();
         if ($request->hasFile('image')) {
-
             $image = storeFile($request->file('image'), 'storage/carManufacture/');
         } else {
-            $image = 'avatar.png';
+            $image = 'car-image.jpg';
         }
         $req_data['image'] = $image;
         CarManufactures::create($req_data);
@@ -103,6 +126,10 @@ class CarManufacturesController extends Controller
      */
     public function edit(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-car-manufacture')) {
+            abort(403, 'Unauthorized action.');
+        }
         $carManufacture = CarManufactures::find($id);
         return view('pages.car-manufacture.edit', compact('carManufacture'));
     }
@@ -112,13 +139,17 @@ class CarManufacturesController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-car-manufacture')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
         $carManufacture = CarManufactures::findOrFail($id);
         $req_data = $request->all();
         if ($request->hasFile('image')) {
-            if ($carManufacture->image && $carManufacture->image != 'avatar.png') {
+            if ($carManufacture->image && $carManufacture->image != 'car-image.jpg') {
                 $oldPath = public_path('storage/carManufacture/' . $carManufacture->image);
                 if (file_exists($oldPath)) {
                     unlink($oldPath);
@@ -140,6 +171,10 @@ class CarManufacturesController extends Controller
      */
     public function destroy(string $id)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('delete-car-manufacture')) {
+            abort(403, 'Unauthorized action.');
+        }
         $carMenufacture = CarManufactures::find($id);
         if ($carMenufacture) {
             $carMenufacture->delete();

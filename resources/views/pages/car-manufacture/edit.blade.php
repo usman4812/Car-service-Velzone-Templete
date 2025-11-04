@@ -53,9 +53,11 @@
                                         <input type="file" name="image" class="form-control" id="date">
                                     </div>
                                     <div>
-                                        <img src="{{ asset('storage/carManufacture/' . ($carManufacture->image ?? 'avatar.png')) }}"
-                                            width="120" class="img-thumbnail">
-
+                                        @if(empty($carManufacture->image) || $carManufacture->image == 'car-image.jpg')
+                                            <img src="{{ asset('storage/carManufacture/car-image.jpg') }}" width="120" class="img-thumbnail">
+                                        @else
+                                            <img src="{{ asset('storage/carManufacture/' . $carManufacture->image) }}" width="120" class="img-thumbnail">
+                                        @endif
                                     </div>
                                 </div>
                                 <!--end col-->

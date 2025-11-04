@@ -7,8 +7,10 @@
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0 flex-grow-1">Sub Category List</h5>
                     <div>
-                        <a id="addRow" href="{{ route('sub-categories.create') }}" class="btn btn-primary">Add Sub
-                            Category</a>
+                        @can('create-sub-category')
+                            <a id="addRow" href="{{ route('sub-categories.create') }}" class="btn btn-primary">Add Sub
+                                Category</a>
+                        @endcan
                     </div>
                 </div>
                 <div class="card-body">

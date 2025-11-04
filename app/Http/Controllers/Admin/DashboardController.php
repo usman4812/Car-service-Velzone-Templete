@@ -18,18 +18,18 @@ class DashboardController extends Controller
     public function index()
     {
         // Total Earnings (All time)
-        $totalEarnings = JobCard::whereNotNull('total_payable')->sum('total_payable') ?? 0;
+        $totalEarnings = JobCard::whereNotNull('net_amount')->sum('net_amount') ?? 0;
 
         // Monthly Earnings (Current Month)
-        $monthlyEarnings = JobCard::whereNotNull('total_payable')
+        $monthlyEarnings = JobCard::whereNotNull('net_amount')
             ->whereMonth('date', now()->month)
             ->whereYear('date', now()->year)
-            ->sum('total_payable') ?? 0;
+            ->sum('net_amount') ?? 0;
 
         // Today's Earnings
-        $todayEarnings = JobCard::whereNotNull('total_payable')
+        $todayEarnings = JobCard::whereNotNull('net_amount')
             ->whereDate('date', today())
-            ->sum('total_payable') ?? 0;
+            ->sum('net_amount') ?? 0;
 
         // Log earnings for debugging
         Log::info('Earnings Stats', [
@@ -52,6 +52,12 @@ class DashboardController extends Controller
 
         // Total Services (Categories)
         $totalServices = Service::where('status', 'active')->count() ?? 0;
+
+        // Current Month Total VAT Amount
+        $currentMonthVatAmount = JobCard::whereNotNull('vat_amount')
+            ->whereMonth('date', now()->month)
+            ->whereYear('date', now()->year)
+            ->sum('vat_amount') ?? 0;
 
         // Get monthly total_payable data for the graph
         $monthlyData = JobCard::selectRaw('MONTH(date) as month, SUM(total_payable) as total')
@@ -86,7 +92,8 @@ class DashboardController extends Controller
             'totalProducts',
             'graphData',
             'totalWorkers',
-            'totalServices'
+            'totalServices',
+            'currentMonthVatAmount'
         ));
     }
 }

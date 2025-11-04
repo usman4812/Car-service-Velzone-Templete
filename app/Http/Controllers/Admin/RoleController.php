@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class RoleController extends Controller
@@ -22,32 +23,46 @@ class RoleController extends Controller
                     return $row->permissions->count();
                 })
                 ->addColumn('action', function ($row) {
+                    $user = Auth::user();
+                    $canEdit = $user->hasRole('admin') || $user->can('edit-role');
+                    $canDelete = $user->hasRole('admin') || $user->can('delete-role');
+
                     $editUrl = route('roles.edit', $row->id);
                     $deleteUrl = route('roles.destroy', $row->id);
 
-                    return '
-                    <div class="dropdown d-inline-block">
+                    $html = '<div class="dropdown d-inline-block">
                         <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="ri-more-fill align-middle"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
-                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
-                                </a>
-                            </li>
-                            <li>
-                                <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
-                                    ' . csrf_field() . method_field('DELETE') . '
-                                    <button type="button" class="dropdown-item remove-item-btn show-confirm">
-                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-                ';
+                        <ul class="dropdown-menu dropdown-menu-end">';
+
+                    if ($canEdit) {
+                        $html .= '<li>
+                            <a href="' . $editUrl . '" class="dropdown-item edit-item-btn">
+                                <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                            </a>
+                        </li>';
+                    }
+
+                    if ($canDelete) {
+                        $html .= '<li>
+                            <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                ' . csrf_field() . method_field('DELETE') . '
+                                <button type="button" class="dropdown-item remove-item-btn show-confirm">
+                                    <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
+                                </button>
+                            </form>
+                        </li>';
+                    }
+
+                    if (!$canEdit && !$canDelete) {
+                        $html .= '<li><span class="dropdown-item text-muted">No actions available</span></li>';
+                    }
+
+                    $html .= '</ul></div>';
+
+                    return $html;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -61,6 +76,10 @@ class RoleController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-role')) {
+            abort(403, 'Unauthorized action.');
+        }
         $permissions = \Spatie\Permission\Models\Permission::all()->groupBy(function ($permission) {
             return explode('-', $permission->name)[0];
         });
@@ -73,6 +92,10 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('create-role')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name' => 'required|string|max:255|unique:roles,name',
             'permissions' => 'required|array',
@@ -101,6 +124,10 @@ class RoleController extends Controller
      */
     public function show(\Spatie\Permission\Models\Role $role)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('view-role')) {
+            abort(403, 'Unauthorized action.');
+        }
         $role->load('permissions');
         return view('pages.roles.show', compact('role'));
     }
@@ -110,6 +137,10 @@ class RoleController extends Controller
      */
     public function edit(\Spatie\Permission\Models\Role $role)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-role')) {
+            abort(403, 'Unauthorized action.');
+        }
         $permissions = \Spatie\Permission\Models\Permission::all()->groupBy(function ($permission) {
             return explode('-', $permission->name)[0];
         });
@@ -124,6 +155,10 @@ class RoleController extends Controller
      */
     public function update(Request $request, \Spatie\Permission\Models\Role $role)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('edit-role')) {
+            abort(403, 'Unauthorized action.');
+        }
         $request->validate([
             'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
             'permissions' => 'required|array',
@@ -154,6 +189,10 @@ class RoleController extends Controller
      */
     public function destroy(Request $request, \Spatie\Permission\Models\Role $role)
     {
+        $user = Auth::user();
+        if (!$user->hasRole('admin') && !$user->can('delete-role')) {
+            abort(403, 'Unauthorized action.');
+        }
         // Don't allow deletion of default roles
         if (in_array($role->name, ['admin', 'manager', 'user'])) {
             if ($request->ajax()) {
