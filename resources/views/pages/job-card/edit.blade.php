@@ -224,7 +224,7 @@
                                                         <div class="col-md-1">
                                                             <input type="text" name="price[]"
                                                                 class="form-control text-center price"
-                                                                value="{{ $item->price }}" placeholder="0.00" readonly>
+                                                                value="{{ $item->price }}" placeholder="0.00">
                                                         </div>
 
                                                         <!-- Total -->
@@ -485,6 +485,30 @@
 
             // Add new row via AJAX
             $(document).on('click', '.addRow', function() {
+                // Get the current row (the row containing the clicked button)
+                var currentRow = $(this).closest('.item-row');
+
+                // Validate all required fields in the current row
+                var categoryId = currentRow.find('.category_id').val();
+                var subCategoryId = currentRow.find('.sub_category_id').val();
+                var productId = currentRow.find('.product_id').val();
+                var qty = currentRow.find('.qty').val();
+                var price = currentRow.find('.price').val();
+                var total = currentRow.find('.total').val();
+
+                // Check if any required field is empty
+                if (!categoryId || !subCategoryId || !productId || !qty || !price || !total || parseFloat(qty) <= 0 || parseFloat(price) <= 0) {
+                    Swal.fire({
+                        title: 'Validation Error!',
+                        text: 'Please fill all the information of previous product before adding a new row.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    return false;
+                }
+
+                // If all fields are filled, proceed to add new row
                 $.ajax({
                     url: "{{ route('get.new.item.row') }}",
                     type: "GET",
@@ -512,7 +536,12 @@
                         }, 100);
                     },
                     error: function() {
-                        alert('Failed to add new row.');
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to add new row.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
                     }
                 });
             });
