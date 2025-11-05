@@ -9,7 +9,7 @@
                 </div><!-- end card header -->
                 <div class="card-body">
                     <div class="live-preview">
-                        <form action="{{ isset($isReplacement) && $isReplacement ? route('job-card.updateReplacement', $jobCard->id) : route('job-card.update', $jobCard->id) }}" method="POST"
+                        <form action="{{ isset($isReplacement) && $isReplacement ? route('job-card.updateReplacement', $jobCard->id) : (isset($isReplacementEdit) && $isReplacementEdit ? route('replacements.update', $jobCard->id) : route('job-card.update', $jobCard->id)) }}" method="POST"
                             enctype="multipart/form-data">
                             @method('PUT')
                             @csrf
@@ -313,7 +313,7 @@
                                 <!--end col-->
                                 <div class="col-lg-12">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <a href="{{ route('job-card.index') }}" class="btn btn-danger waves-effect">
+                                        <a href="{{ (isset($isReplacementEdit) && $isReplacementEdit) ? route('replacements.index') : route('job-card.index') }}" class="btn btn-danger waves-effect">
                                             <i class="ri-arrow-left-line align-middle me-1"></i> Back
                                         </a>
                                         <div class="text-end">

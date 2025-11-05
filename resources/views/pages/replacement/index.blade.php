@@ -22,7 +22,9 @@
                                 <th>Sales Rep</th>
                                 <th>Sub Total</th>
                                 <th>Total</th>
+                                <th>Status</th>
                                 <th>Date</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                     </table>
@@ -81,8 +83,20 @@
                         searchable: false
                     },
                     {
+                        data: 'status',
+                        name: 'status',
+                        orderable: true,
+                        searchable: false
+                    },
+                    {
                         data: 'date',
                         name: 'date',
+                        searchable: false
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
                         searchable: false
                     }
                 ],
