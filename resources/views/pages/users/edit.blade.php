@@ -8,7 +8,7 @@
                     <h5 class="card-title mb-0">Edit User</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('users.update', $user) }}" method="POST">
+                    <form action="{{ route('users.update', $user) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="mb-3">
@@ -30,6 +30,16 @@
                             <input type="password" name="password" class="form-control @error('password') is-invalid @enderror">
                             @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image</label>
+                            <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
+                            @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        @if($user->image && $user->image != 'avatar.png')
+                            <div class="mb-3">
+                                <img src="{{ asset('storage/user/' . $user->image) }}" alt="{{ $user->name }}" class="img-thumbnail" style="max-width: 120px;">
+                            </div>
+                        @endif
                         <div class="mb-3">
                             <label class="form-label">Roles</label>
                             <select name="roles[]" multiple class="form-select @error('roles') is-invalid @enderror">

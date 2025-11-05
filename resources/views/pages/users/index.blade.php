@@ -19,6 +19,7 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
+                                <th>Image</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
@@ -42,6 +43,7 @@
             ajax: "{{ route('users.index') }}",
             columns: [
                 {data: 'id', name: 'id'},
+                {data: 'image', name: 'image', orderable: false, searchable: false},
                 {data: 'name', name: 'name'},
                 {data: 'email', name: 'email'},
                 {data: 'phone', name: 'phone'},

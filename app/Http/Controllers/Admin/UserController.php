@@ -18,6 +18,10 @@ class UserController extends Controller
         if ($request->ajax()) {
             $data = User::query();
             return DataTables::of($data)
+                ->addColumn('image', function ($row) {
+                    $imagePath = ($row->image && $row->image != 'avatar.png') ? asset('storage/user/' . $row->image) : asset('storage/user/avatar.jpg');
+                    return '<img src="' . $imagePath . '" alt="' . htmlspecialchars($row->name) . '" class="img-thumbnail" style="max-width: 100px;">';
+                })
                 ->addColumn('roles', function ($row) {
                     return $row->roles->pluck('name')->implode(', ') ?: '-';
                 })
@@ -68,7 +72,7 @@ class UserController extends Controller
 
                     return $html;
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'image'])
                 ->make(true);
         }
 
@@ -100,9 +104,13 @@ class UserController extends Controller
         $req_data = $request->all();
         $roleIds = $req_data['roles'] ?? [];
         unset($req_data['roles']);
-
+        if ($request->hasFile('image')) {
+            $image = storeFile($request->file('image'), 'storage/user/');
+        } else {
+            $image = 'avatar.png';
+        }
+        $req_data['image'] = $image;
         $user = User::create($req_data);
-
         if (!empty($roleIds)) {
             // Convert role IDs to role names for Spatie
             $roleNames = Role::whereIn('id', $roleIds)->pluck('name')->toArray();
@@ -155,7 +163,18 @@ class UserController extends Controller
         if (empty($req_data['password'])) {
             unset($req_data['password']);
         }
-
+        if ($request->hasFile('image')) {
+            if ($user->image && $user->image != 'avatar.png') {
+                $oldPath = public_path('storage/user/' . $user->image);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+            $image = storeFile($request->file('image'), 'storage/user/');
+            $req_data['image'] = $image;
+        } else {
+            $req_data['image'] = $user->image;
+        }
         $user->update($req_data);
 
         // Sync roles - convert role IDs to role names for Spatie

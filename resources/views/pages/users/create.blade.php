@@ -8,7 +8,7 @@
                     <h5 class="card-title mb-0">Add User</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('users.store') }}" method="POST">
+                    <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">Name</label>
@@ -28,6 +28,11 @@
                             <label class="form-label">Password</label>
                             <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required>
                             @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image</label>
+                            <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
+                            @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Roles</label>
