@@ -22,7 +22,11 @@ class JobCardController extends Controller
     {
         if ($request->ajax()) {
             $jobCards = JobCard::with(['salesPerson', 'items', 'customer'])
-                ->select(['id', 'job_card_no', 'customer_id', 'sale_person_id', 'date', 'amount', 'total_payable'])
+                ->select(['id', 'job_card_no', 'customer_id', 'sale_person_id', 'date', 'amount', 'total_payable', 'replacement', 'status'])
+                ->where(function($query) {
+                    $query->where('replacement', 0)
+                          ->orWhereNull('replacement'); // Include records where replacement is NULL
+                })
                 ->latest();
 
             return DataTables::of($jobCards)
@@ -75,6 +79,18 @@ class JobCardController extends Controller
             // ✅ Total Payable (from JobCard table -> net_amount)
             ->addColumn('total', function ($row) {
                 return number_format($row->total_payable ?? 0, 2);
+            })
+
+            // ✅ Status Badge
+            ->addColumn('status', function ($row) {
+                $status = strtolower(trim($row->status ?? 'active'));
+                if ($status === 'replacement') {
+                    return '<span class="badge bg-warning">Replacement</span>';
+                } elseif ($status === 'active') {
+                    return '<span class="badge bg-success">Active</span>';
+                } else {
+                    return '<span class="badge bg-secondary">' . ucfirst($status) . '</span>';
+                }
             })
 
                 // ✅ Action Buttons with Permission Checks
@@ -139,7 +155,7 @@ class JobCardController extends Controller
 
                     return $html;
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'status'])
                 ->make(true);
         }
 
@@ -213,6 +229,7 @@ class JobCardController extends Controller
             'discount_amount' => $request->discount_amount,
             'discount_percent' => $request->discount_percent,
             'total_payable' => $request->total_payable,
+            'status' => 'active', // Set status to active for new job cards
         ]);
 
         // Step 2️⃣: Insert multiple JobCardItems
@@ -313,6 +330,7 @@ class JobCardController extends Controller
             'discount_amount' => $request->discount_amount,
             'discount_percent' => $request->discount_percent,
             'total_payable' => $request->total_payable,
+            'status' => 'active', // Keep status as active when updating (not replacement)
         ]);
         JobCardItem::where('job_card_id', $jobCard->id)->delete();
         if ($request->has('category_id')) {
@@ -391,7 +409,8 @@ class JobCardController extends Controller
     }
 
     /**
-     * Update replacement - sets replacement column to 1.
+     * Update replacement - creates a new record instead of updating the old one.
+     * The original job card remains unchanged in the database.
      */
     public function updateReplacement(Request $request, $id)
     {
@@ -406,11 +425,19 @@ class JobCardController extends Controller
             'phone' => 'required',
             'car_manufacture_id' => 'required',
         ]);
-        $jobCard = JobCard::findOrFail($id);
+        // Get the original job card (keep it unchanged)
+        $originalJobCard = JobCard::findOrFail($id);
+        
+        // Update original job card status to "replacement"
+        $originalJobCard->update([
+            'status' => 'replacement'
+        ]);
+        
         // Get customer details
         $customer = Customer::findOrFail($request->customer_id);
 
-        $jobCard->update([
+        // Create a NEW job card record (replacement) instead of updating the old one
+        $newJobCard = JobCard::create([
             'job_card_no' => $request->job_card_no,
             'date' => $request->date,
             'customer_id' => $request->customer_id,
@@ -432,13 +459,15 @@ class JobCardController extends Controller
             'discount_amount' => $request->discount_amount,
             'discount_percent' => $request->discount_percent,
             'total_payable' => $request->total_payable,
-            'replacement' => 1, // Set replacement to 1
+            'replacement' => 1, // Mark as replacement
+            'status' => 'replacement', // Set status to replacement
         ]);
-        JobCardItem::where('job_card_id', $jobCard->id)->delete();
+
+        // Create new job card items for the new record
         if ($request->has('category_id')) {
             foreach ($request->category_id as $key => $categoryId) {
                 JobCardItem::create([
-                    'job_card_id' => $jobCard->id,
+                    'job_card_id' => $newJobCard->id, // Use new job card ID
                     'category_id' => $categoryId,
                     'sub_category_id' => $request->sub_category_id[$key] ?? null,
                     'product_id' => $request->product_id[$key] ?? null,
@@ -450,10 +479,12 @@ class JobCardController extends Controller
                     'vat' => 0, // optional
                     'discount' => 0, // optional
                     'net_amount' => $request->total[$key] ?? 0,
+                    'warranty' => $request->warranty[$key] ?? null,
                 ]);
             }
         }
+        
         return redirect()->route('job-card.index')
-            ->with('success', 'Job Card Replacement Updated Successfully');
+            ->with('success', 'Replacement job card created successfully. Original record preserved.');
     }
 }

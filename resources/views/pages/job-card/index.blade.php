@@ -27,6 +27,7 @@
                                 <th>Sales Rep</th>
                                 <th>Sub Total</th>
                                 <th>Total</th>
+                                <th>Status</th>
                                 <th>Date</th>
                                 <th>Action</th>
                             </tr>
@@ -84,6 +85,12 @@
                     {
                         data: 'total_payable',
                         name: 'total_payable',
+                        searchable: false
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        orderable: true,
                         searchable: false
                     },
                     {
