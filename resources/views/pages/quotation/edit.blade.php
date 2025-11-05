@@ -137,7 +137,7 @@
                                                     <div class="col-md-1">
                                                         <input type="text" name="price[]"
                                                             class="form-control text-center price" placeholder="0.00"
-                                                            value="{{ $item->price }}" readonly>
+                                                            value="{{ $item->price }}">
                                                     </div>
 
                                                     <!-- Total -->
@@ -391,15 +391,61 @@
             // Add Row
             // ---------------------------
             $(document).on("click", ".addRow", function() {
+                // Get the current row (the row containing the clicked button)
+                var currentRow = $(this).closest(".item-row");
+
+                // Validate all required fields in the current row
+                var categoryId = currentRow.find(".category_id").val();
+                var subCategoryId = currentRow.find(".sub_category_id").val();
+                var productId = currentRow.find(".product_id").val();
+                var qty = currentRow.find(".qty").val();
+                var price = currentRow.find(".price").val();
+                var total = currentRow.find(".total").val();
+
+                // Check if any required field is empty
+                if (!categoryId || !subCategoryId || !productId || !qty || !price || !total || parseFloat(qty) <= 0 || parseFloat(price) <= 0) {
+                    Swal.fire({
+                        title: 'Validation Error!',
+                        text: 'Please fill all the information of previous product before adding a new row.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    return false;
+                }
+
+                // If all fields are filled, proceed to add new row
                 $.ajax({
                     url: "{{ route('get.new.item.row') }}",
                     type: "GET",
                     success: function(response) {
                         $("#itemRows").append(response.html);
-                        calculateTotals();
+                        setTimeout(function() {
+                            let subtotal = 0;
+                            $('.total').each(function() {
+                                let val = parseFloat($(this).val()) || 0;
+                                subtotal += val;
+                            });
+
+                            $('#amount').val(subtotal.toFixed(2));
+                            let netAmount = subtotal;
+                            let vatAmount = (netAmount * 5) / 100;
+                            let totalPayable = netAmount + vatAmount;
+
+                            $('#net_amount').val(netAmount.toFixed(2));
+                            $('#vat_amount').val(vatAmount.toFixed(2));
+                            $('#total_payable').val(totalPayable.toFixed(2));
+
+                            calculateTotals();
+                        }, 100);
                     },
                     error: function() {
-                        alert("Failed to add new row.");
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to add new row.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
                     }
                 });
             });
