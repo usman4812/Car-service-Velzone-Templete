@@ -49,13 +49,12 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <div class="float-end">
-                                                <a href="auth-pass-reset-basic.html" class="text-muted">Forgot password?</a>
-                                            </div>
                                             <label class="form-label" for="password-input">Password</label>
                                             <div class="position-relative auth-pass-inputgroup mb-3">
                                                 <input type="password" class="form-control pe-5 password-input" placeholder="Enter password" id="password-input" name="password">
-                                                <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon material-shadow-none" type="button" id="password-addon"><i class="ri-eye-fill align-middle"></i></button>
+                                                <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon material-shadow-none" type="button" id="password-addon">
+                                                    <i class="ri-eye-fill align-middle" id="password-icon"></i>
+                                                </button>
                                             </div>
                                         </div>
 
@@ -88,3 +87,29 @@
 
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordInput = document.getElementById('password-input');
+        const passwordAddon = document.getElementById('password-addon');
+        const passwordIcon = document.getElementById('password-icon');
+
+        if (passwordAddon && passwordInput) {
+            passwordAddon.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    passwordIcon.classList.remove('ri-eye-fill');
+                    passwordIcon.classList.add('ri-eye-off-fill');
+                } else {
+                    passwordInput.type = 'password';
+                    passwordIcon.classList.remove('ri-eye-off-fill');
+                    passwordIcon.classList.add('ri-eye-fill');
+                }
+            });
+        }
+    });
+</script>
+@endpush
