@@ -139,7 +139,8 @@ Route::middleware('auth')->group(function () {
     });
 
     // Report Routes
-    Route::resource('reports', ReportController::class)->middleware('permission:view-report');
+    Route::get('reports', [ReportController::class, 'index'])->middleware('permission:view-report')->name('reports.index');
+    Route::get('reports/{date}', [ReportController::class, 'show'])->middleware('permission:view-report')->name('reports.show');
 
     // User Management Routes
     Route::middleware('permission:view-user')->group(function () {

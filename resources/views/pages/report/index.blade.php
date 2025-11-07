@@ -1,12 +1,14 @@
 @extends('layouts.master')
-@section('title', 'Product Usage Report')
+@section('title', 'Daily Earnings Report')
 @section('content')
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex align-items-center">
-                        <h5 class="card-title mb-0 flex-grow-1">Most Used Products Report</h5>
+                        <h5 class="card-title mb-0 flex-grow-1">
+                            <i class="ri-calendar-line me-2"></i>Daily Earnings Report
+                        </h5>
                     </div>
                 </div>
                 <div class="card-body">
@@ -15,13 +17,10 @@
                         <thead>
                             <tr>
                                 <th>SR No.</th>
-                                <th>Product Code</th>
-                                <th>Product Name</th>
-                                <th>Category</th>
-                                <th>Sub Category</th>
-                                <th>Total Quantity</th>
-                                <th>Unit Price</th>
-                                <th>Total Value</th>
+                                <th>Date</th>
+                                <th>Total Job Cards</th>
+                                <th>Total Earnings</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                     </table>
@@ -45,45 +44,31 @@
                         searchable: false
                     },
                     {
-                        data: 'product_code',
-                        name: 'product_code',
+                        data: 'date',
+                        name: 'date',
                         searchable: true
                     },
                     {
-                        data: 'product_name',
-                        name: 'product_name',
-                        searchable: true
+                        data: 'total_job_cards',
+                        name: 'total_job_cards',
+                        searchable: false,
+                        className: 'text-center'
                     },
                     {
-                        data: 'category',
-                        name: 'category',
-                        searchable: true
-                    },
-                    {
-                        data: 'sub_category',
-                        name: 'sub_category',
-                        searchable: true
-                    },
-                    {
-                        data: 'total_quantity',
-                        name: 'total_quantity',
+                        data: 'total_earnings',
+                        name: 'total_earnings',
                         searchable: false,
                         className: 'text-end'
                     },
                     {
-                        data: 'price',
-                        name: 'price',
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
                         searchable: false,
-                        className: 'text-end'
-                    },
-                    {
-                        data: 'total_value',
-                        name: 'total_value',
-                        searchable: false,
-                        className: 'text-end'
+                        className: 'text-center'
                     }
                 ],
-                order: [[5, 'desc']], // Order by total quantity descending
+                order: [[1, 'desc']], // Order by date descending
                 responsive: true,
                 pageLength: 10,
                 dom: 'Bfrtip',
@@ -93,7 +78,7 @@
                         text: '<i class="ri-file-excel-line"></i> Export Excel',
                         className: 'btn btn-success btn-sm',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                            columns: [0, 1, 2, 3]
                         }
                     },
                     {
@@ -101,7 +86,7 @@
                         text: '<i class="ri-file-pdf-line"></i> Export PDF',
                         className: 'btn btn-danger btn-sm',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                            columns: [0, 1, 2, 3]
                         }
                     },
                     {
@@ -109,7 +94,7 @@
                         text: '<i class="ri-printer-line"></i> Print',
                         className: 'btn btn-info btn-sm',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                            columns: [0, 1, 2, 3]
                         }
                     }
                 ]

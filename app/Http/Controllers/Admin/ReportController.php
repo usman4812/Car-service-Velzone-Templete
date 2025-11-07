@@ -3,66 +3,64 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Product;
+use App\Models\JobCard;
 use App\Models\JobCardItem;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
     /**
-     * Display a listing of most used products.
+     * Display a listing of earnings grouped by date.
      */
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $products = JobCardItem::select('product_id', DB::raw('SUM(qty) as total_quantity'))
-                ->whereNotNull('product_id')
-                ->groupBy('product_id')
-                ->orderBy('total_quantity', 'desc')
-                ->with(['product.category', 'product.subCategory'])
+            // Group job cards by date, excluding replacement records
+            $earnings = JobCard::select(
+                    DB::raw('DATE(date) as date'),
+                    DB::raw('COUNT(*) as total_job_cards'),
+                    DB::raw('SUM(net_amount) as total_earnings')
+                )
+                ->where(function($query) {
+                    $query->where('replacement', 0)
+                          ->orWhereNull('replacement');
+                })
+                ->whereNotNull('date')
+                ->groupBy(DB::raw('DATE(date)'))
+                ->orderBy('date', 'desc')
                 ->get();
 
-            return DataTables::of($products)
+            return DataTables::of($earnings)
                 ->addIndexColumn()
 
-                // ✅ Product Name
-                ->addColumn('product_name', function ($row) {
-                    return $row->product ? $row->product->name : '-';
+                // Date column
+                ->addColumn('date', function ($row) {
+                    return $row->date ? Carbon::parse($row->date)->format('d M Y') : '-';
                 })
 
-                // ✅ Product Code
-                ->addColumn('product_code', function ($row) {
-                    return $row->product ? $row->product->code : '-';
+                // Total Job Cards
+                ->addColumn('total_job_cards', function ($row) {
+                    return '<span class="badge bg-primary">' . number_format($row->total_job_cards, 0) . '</span>';
                 })
 
-                // ✅ Category
-                ->addColumn('category', function ($row) {
-                    return $row->product && $row->product->category ? $row->product->category->name : '-';
+                // Total Earnings
+                ->addColumn('total_earnings', function ($row) {
+                    return '<strong>' . number_format($row->total_earnings ?? 0, 2) . '</strong>';
                 })
 
-                // ✅ Sub Category
-                ->addColumn('sub_category', function ($row) {
-                    return $row->product && $row->product->subCategory ? $row->product->subCategory->name : '-';
+                // Action column with View button
+                ->addColumn('action', function ($row) {
+                    $viewUrl = route('reports.show', ['date' => $row->date]);
+                    return '<a href="' . $viewUrl . '" class="btn btn-sm btn-info">
+                                <i class="ri-eye-line"></i> View Details
+                            </a>';
                 })
 
-                // ✅ Total Quantity Used
-                ->addColumn('total_quantity', function ($row) {
-                    return number_format($row->total_quantity, 0);
-                })
-
-                // ✅ Price
-                ->addColumn('price', function ($row) {
-                    return $row->product ? number_format($row->product->price, 2) : '0.00';
-                })
-
-                // ✅ Total Value
-                ->addColumn('total_value', function ($row) {
-                    $totalValue = $row->product ? ($row->product->price * $row->total_quantity) : 0;
-                    return number_format($totalValue, 2);
-                })
-
+                ->rawColumns(['total_job_cards', 'total_earnings', 'action'])
                 ->make(true);
         }
 
@@ -86,11 +84,45 @@ class ReportController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display detailed earnings for a specific date.
      */
-    public function show(string $id)
+    public function show(Request $request, $date)
     {
-        //
+        // Parse the date
+        try {
+            $parsedDate = Carbon::parse($date)->format('Y-m-d');
+        } catch (\Exception $e) {
+            return redirect()->route('reports.index')
+                ->with('error', 'Invalid date format.');
+        }
+
+        // Get all job cards for this date, excluding replacement records
+        $jobCards = JobCard::with(['customer', 'salesPerson', 'carManufacture'])
+            ->where(function($query) {
+                $query->where('replacement', 0)
+                      ->orWhereNull('replacement');
+            })
+            ->whereDate('date', $parsedDate)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calculate totals
+        $totalJobCards = $jobCards->count();
+        $totalEarnings = $jobCards->sum('net_amount');
+        $totalAmount = $jobCards->sum('amount');
+        $totalDiscount = $jobCards->sum('discount_amount');
+        $totalVat = $jobCards->sum('vat_amount');
+
+        return view('pages.report.show', [
+            'date' => Carbon::parse($parsedDate)->format('d M Y'),
+            'parsedDate' => $parsedDate,
+            'jobCards' => $jobCards,
+            'totalJobCards' => $totalJobCards,
+            'totalEarnings' => $totalEarnings,
+            'totalAmount' => $totalAmount,
+            'totalDiscount' => $totalDiscount,
+            'totalVat' => $totalVat,
+        ]);
     }
 
     /**
