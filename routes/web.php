@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Admin\AjaxController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BlogController;
@@ -31,6 +32,16 @@ use App\Http\Controllers\Admin\MakingQuotationController;
 // });
 // Route::any('login', [AuthController::class, 'login'])->name('admin.login');
 
+
+Route::get('/clear-cache', function () {
+   Artisan::call('cache:clear');
+   Artisan::call('route:clear');
+   Artisan::call('config:clear');
+   Artisan::call('view:clear');
+   Artisan::call('optimize:clear');
+
+   return "Cache cleared successfully";
+});
 
 // Route::middleware('guest')->group(function () {
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');

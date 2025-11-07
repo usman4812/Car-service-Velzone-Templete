@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
-    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default" data-bs-theme="light">
 
 <head>
     <meta charset="utf-8" />
@@ -17,6 +17,17 @@
 
     <!-- Layout config CSS -->
     <link href="{{ asset('assets/css/layout.min.css') }}" rel="stylesheet" type="text/css" />
+
+    <!-- Dark Mode Persistence Script - Run Early -->
+    <script>
+        // Apply dark mode theme immediately before page renders to prevent flash
+        (function() {
+            const savedTheme = sessionStorage.getItem('data-bs-theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-bs-theme', savedTheme);
+            }
+        })();
+    </script>
 
     <!-- App CSS -->
     <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
@@ -142,6 +153,37 @@
     <script src="{{ asset('assets/js/app.js') }}"></script>
 
     @stack('scripts')
+
+    <script>
+        // Ensure dark mode persistence and sync with app.js handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const htmlElement = document.documentElement;
+            const savedTheme = sessionStorage.getItem('data-bs-theme');
+
+            // Ensure theme is applied
+            if (savedTheme) {
+                htmlElement.setAttribute('data-bs-theme', savedTheme);
+            } else {
+                const currentTheme = htmlElement.getAttribute('data-bs-theme') || 'light';
+                sessionStorage.setItem('data-bs-theme', currentTheme);
+            }
+
+            // Enhance the existing dark mode toggle to ensure sessionStorage is updated
+            const darkModeToggle = document.querySelector('.light-dark-mode');
+            if (darkModeToggle) {
+                // Wrap the existing click handler to ensure sessionStorage is updated
+                darkModeToggle.addEventListener('click', function(e) {
+                    // Small delay to let app.js handler run first, then ensure sessionStorage is synced
+                    setTimeout(function() {
+                        const currentTheme = htmlElement.getAttribute('data-bs-theme');
+                        if (currentTheme) {
+                            sessionStorage.setItem('data-bs-theme', currentTheme);
+                        }
+                    }, 10);
+                }, true); // Use capture phase to run before app.js handler
+            }
+        });
+    </script>
 
     <script>
         // Auto close after 3 sec

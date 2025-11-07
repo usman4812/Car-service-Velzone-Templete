@@ -98,7 +98,7 @@
         if (passwordAddon && passwordInput) {
             passwordAddon.addEventListener('click', function(e) {
                 e.preventDefault();
-                
+
                 if (passwordInput.type === 'password') {
                     passwordInput.type = 'text';
                     passwordIcon.classList.remove('ri-eye-fill');
